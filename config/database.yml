@@ -1,0 +1,19 @@
+mysql: &MYSQL
+  adapter: mysql2
+  user: 'root'
+  password: 'root'
+  host: localhost
+  port: 3306
+  
+development:
+  <<: *MYSQL
+  database: warehouse_development
+
+production:
+  <<: *MYSQL
+  database: warehouse_development
+
+test:
+  <<: *MYSQL
+  database: warehouse_test
+
