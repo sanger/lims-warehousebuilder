@@ -17,7 +17,6 @@ namespace :dev do
     sh "bundle exec sequel -m db/migrations/ -M 0 -e development config/database.yml"
   end
 
-
   task :time => :setup_env do
     sh "time bundle exec ruby script/start_warehousebuilder.rb"
   end
@@ -30,6 +29,7 @@ namespace :test do
   end
 
   task :migrate => :setup_env do 
+    sh 'mysql -uroot -p -e "DROP DATABASE IF EXISTS warehouse_test; CREATE DATABASE warehouse_test DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;"'
     sh "bundle exec sequel -m db/migrations/ -e test config/database.yml"
   end
 
