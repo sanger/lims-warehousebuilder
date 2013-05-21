@@ -1,4 +1,4 @@
-require 'consumer'
+require 'lims-busclient'
 require 'lims-warehousebuilder/json_decoder'
 require 'lims-warehousebuilder/table_migration'
 
@@ -9,8 +9,8 @@ module Lims
     end
 
     class Builder
+      include Lims::BusClient::Consumer
       include TableMigration
-      include MessageBusClient::Consumer
 
       attribute :queue_name, String, :required => true, :writer => :private
       attribute :routing_keys, Array, :required => false, :writer => :private
