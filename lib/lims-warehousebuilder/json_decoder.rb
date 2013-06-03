@@ -1,7 +1,5 @@
 require 'json'
 require 'facets/kernel'
-require 'lims-core/laboratory'
-require 'lims-core/organization'
 require 'lims-warehousebuilder/model'
 require 'lims-warehousebuilder/resource_tools'
 

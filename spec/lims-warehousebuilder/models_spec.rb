@@ -16,7 +16,6 @@ module Lims::WarehouseBuilder
         @subject.should respond_to(
           :model_for,
           :model_for_uuid,
-          :modelname_for_uuid,
           :prepared_model,
           :clone_model_object
         )
