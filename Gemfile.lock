@@ -1,9 +1,9 @@
 GIT
   remote: http://github.com/sanger/lims-core.git
-  revision: 88e79be02617f0c003b3e30bf984abd3fffa4abd
-  branch: development
+  revision: d1b0a6bf030490a89eed7d1eaf0c290b33d23240
+  branch: master
   specs:
-    lims-core (2.1.0.2.0)
+    lims-core (2.1.1)
       active_support
       aequitas
       bunny (= 0.9.0.pre10)
@@ -16,8 +16,8 @@ GIT
 
 GIT
   remote: http://github.com/sanger/lims-laboratory-app.git
-  revision: 77229b0865f59963836e0acdb38ee4796203a1a7
-  branch: development
+  revision: e4232b7798298e95a90af46687049913c0b23444
+  branch: master
   specs:
     lims-laboratory-app (1.2.0)
 
