@@ -21,7 +21,8 @@ module Lims
         '*.*.tube.*',
         '*.*.spincolumn.*',
         '*.*.tuberack.*',
-        '*.*.transfertubestotubes.*'
+        '*.*.transfertubestotubes.*',
+        '*.*.sample.*'
       ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, ".*")) }
 
       # @param [Hash] amqp_settings
