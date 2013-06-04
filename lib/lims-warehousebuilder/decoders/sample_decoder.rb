@@ -17,7 +17,7 @@ module Lims::WarehouseBuilder
           else
             # Sample object from lims-management-app. Are not part
             # of other s2 resource so they don't have an ancestor_uuid.
-            if options[:action] == 'deletesample'
+            if options[:action] =~ /delete/
               objects << prepared_model(@payload["uuid"], @model).tap do |sample|
                 sample.deleted_at = @payload["date"]
                 sample.deleted_by = @payload["user"]
