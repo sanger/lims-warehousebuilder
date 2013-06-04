@@ -47,6 +47,13 @@ module Lims::WarehouseBuilder
             value = complete_value(value, payload, payload_ancestor)
             payload_ancestor = {:model => key, :uuid => payload[key]["uuid"]}
             block.call(key, value)
+          elsif is_s2_resources_array?(key, value)
+            # Handle the case we have an array of resources like
+            # :samples => [{sample1}, {sample2},...]
+            # The following add the type in front of each resource
+            # in the array. For example: 
+            # :samples => [{:sample => {sample1}, {:sample => {sample2}}, ...]
+            value = value.map { |v| {s2_resource_singular(key) => v} } 
           end
 
           case value
@@ -99,6 +106,19 @@ module Lims::WarehouseBuilder
       # @return [Bool]
       def self.is_s2_resource?(name)
         ResourceTools::Database::S2_MODELS.include?(name)
+      end
+
+      # @param [String] name
+      # @return [Bool]
+      def self.is_s2_resources_array?(name, value)
+        singular_name = s2_resource_singular(name)
+        singular_name ? is_s2_resource?(singular_name) && value.is_a?(Array) : false 
+      end
+
+      # @param [String] name
+      # @return [String]
+      def self.s2_resource_singular(name)
+        name.match(/^(\w*)s$/) ? $1 : nil
       end
 
       # @param [Hash] options
