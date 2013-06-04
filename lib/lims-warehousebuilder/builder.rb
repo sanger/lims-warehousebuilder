@@ -55,7 +55,8 @@ module Lims
             begin
               Decoder::JsonDecoder.foreach_s2_resource(payload) do |model, attributes|
                 decoder = decoder_for(model).new(model, attributes)
-                objects = decoder.call
+                action = metadata.routing_key.match(/^[\w\.]*\.(\w*)$/)[1]
+                objects = decoder.call({:action => action})
                 save(objects)
               end
               metadata.ack
