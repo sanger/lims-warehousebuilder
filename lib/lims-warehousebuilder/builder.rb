@@ -22,7 +22,8 @@ module Lims
         '*.*.spincolumn.*',
         '*.*.tuberack.*',
         '*.*.transfertubestotubes.*',
-        '*.*.sample.*'
+        '*.*.sample.*', '*.*.bulkcreatesample.*', 
+        '*.*.bulkupdatesample.*', '*.*.bulkdeletesample.*' 
       ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, ".*")) }
 
       # @param [Hash] amqp_settings
@@ -53,12 +54,9 @@ module Lims
           if expected_message?(metadata.routing_key)
             log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
             begin
-              Decoder::JsonDecoder.foreach_s2_resource(payload) do |model, attributes|
-                decoder = decoder_for(model).new(model, attributes)
-                action = metadata.routing_key.match(/^[\w\.]*\.(\w*)$/)[1]
-                objects = decoder.call({:action => action})
-                save(objects)
-              end
+              action = metadata.routing_key.match(/^[\w\.]*\.(\w*)$/)[1]
+              objects = decode_payload(payload, action)
+              save(objects)
               metadata.ack
               log.info("Message processed and acknowledged")
             rescue MessageToBeRequeued
@@ -67,8 +65,7 @@ module Lims
             rescue Model::ProcessingFailed => ex
               # TODO: use the dead lettering queue
               metadata.reject
-              log.error("Processing the message '#{metadata.routing_key}' failed")
-              log.error(ex.to_s)
+              log.error("Processing the message '#{metadata.routing_key}' failed with: #{ex.to_s}")
             end
           else
             metadata.reject
@@ -77,6 +74,21 @@ module Lims
         end
       end
 
+      # @param [Hash] payload
+      # @param [String] action
+      # @return [Array<Sequel::Model>]
+      def decode_payload(payload, action)
+        [].tap do |objects_to_save|
+          Decoder::JsonDecoder.foreach_s2_resource(payload) do |model, attributes|
+            decoder = decoder_for(model).new(model, attributes)
+            objects = decoder.call({:action => action})
+            objects_to_save << objects
+          end
+        end.flatten
+      end
+
+      # @param [String] routing_key
+      # @return [Bool]
       def expected_message?(routing_key)
         EXPECTED_ROUTING_KEYS_PATTERNS.each do |pattern|
           return true if routing_key.match(pattern)
