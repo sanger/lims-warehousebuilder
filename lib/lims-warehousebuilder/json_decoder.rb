@@ -20,9 +20,10 @@ module Lims::WarehouseBuilder
         @payload = payload
       end
 
+      # @param [Hash] options
       # @return [Array<Sequel::Model>]
-      def call
-        result = _call
+      def call(options = {})
+        result = _call(options)
         result.is_a?(Array) ? result.flatten.compact : [result]
       end
 
@@ -100,8 +101,9 @@ module Lims::WarehouseBuilder
         ResourceTools::Database::S2_MODELS.include?(name)
       end
 
+      # @param [Hash] options
       # @return [Array<Sequel::Model>]
-      def _call
+      def _call(options)
         [map_attributes_to_model(prepared_model(@payload["uuid"], @model))]
       end
 
