@@ -140,7 +140,7 @@ module Lims::WarehouseBuilder
         (model.columns - [model.primary_key]).each do |attribute|
           payload_key = model.class.translations.inverse[attribute] || attribute.to_s 
           value = seek(payload, payload_key)
-          model.send("#{attribute}=", value) if value
+          model.send("#{attribute}=", value) unless value.nil? # use nil? otherwise side effect with boolean values
         end
         model
       end
