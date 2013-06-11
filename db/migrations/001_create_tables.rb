@@ -1,3 +1,5 @@
+require 'lims-warehousebuilder/core_ext'
+
 DNA_RNA_MANUAL_EXTRACTION_ROLES = [
   "eppendorf_tube_dna",
   "eppendorf_tube_dna_to_be_retubed_batched",
@@ -30,14 +32,14 @@ DNA_RNA_MANUAL_EXTRACTION_ROLES = [
   "qiacube_rna_only_input_tube_rnap_batched",
   "qiacube_rna_only_input_tube_rnap_to_be_retubed",
   "qiacube_rna_only_input_tube_rnap_to_be_retubed_batched",
-  "samples_plates_working_dilution_dna",
-  "samples_plates_working_dilution_rna",
-  "samples_rack_stock_dna",
-  "samples_rack_stock_dna_volume_checked",
-  "samples_rack_stock_dna_volume_control_added",
-  "samples_rack_stock_rna",
-  "samples_rack_stock_rna_volume_checked"
-]
+  "plates_working_dilution_dna",
+  "plates_working_dilution_rna",
+  "rack_stock_dna",
+  "rack_stock_dna_volume_checked",
+  "rack_stock_dna_volume_control_added",
+  "rack_stock_rna",
+  "rack_stock_rna_volume_checked"
+].map(&:contract)
 # TODO: add cancelled and failed
 ORDER_ITEM_STATUS = ["pending", "in_progress", "done", "unused"]
 
@@ -48,12 +50,12 @@ Sequel.migration do
     [:current_sample_management_activity, :historic_sample_management_activity].each do |table|
       sequel = "create_table :#{table} do;".tap do |s|
         s << "primary_key :internal_id;"
-        s << "String :uuid, :fixed => true, :size => 64;"
+        s << "String :uuid, :fixed => true, :size => 64;" << "\n"
         DNA_RNA_MANUAL_EXTRACTION_ROLES.each do |role|
-          s << "String :#{role}_uuid, :fixed => true, :size => 64;"
+          s << "String :#{role}_uuid, :fixed => true, :size => 64;" << "\n"
           ORDER_ITEM_STATUS.each do |status|
-            s << "String :#{role}_#{status}_by;"
-            s << "DateTime :#{role}_#{status}_at;"
+            s << "String :#{role}_#{status}_by, :fixed => true, :size => 64;" << "\n"
+            s << "DateTime :#{role}_#{status}_at;" << "\n"
           end
         end
         s << "index :uuid;" if table.to_s == "current_sample_management_activity"
