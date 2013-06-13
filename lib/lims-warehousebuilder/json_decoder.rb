@@ -43,7 +43,7 @@ module Lims::WarehouseBuilder
         payload = payload.is_a?(Hash) ? payload : self.to_hash(payload)
 
         payload.each do |key, value|
-          if is_s2_resource?(key)
+          if is_s2_resource?(key, value)
             value = complete_value(value, payload, payload_ancestor)
             payload_ancestor = {:model => key, :uuid => payload[key]["uuid"]}
             block.call(key, value)
@@ -104,15 +104,26 @@ module Lims::WarehouseBuilder
 
       # @param [String] name
       # @return [Bool]
-      def self.is_s2_resource?(name)
+      def self.is_s2_resource_name?(name)
         ResourceTools::Database::S2_MODELS.include?(name)
+      end
+
+      # @param [String] name
+      # @param [Hash] content
+      # @return [Bool]
+      # Return true if the name is a s2 resource name and if the resource has an uuid.
+      # The uuid criteria is used to discard the content which have a s2 name
+      # but are not a resource (like in bulk_create_tube, the action parameters are 
+      # listed under "tubes").
+      def self.is_s2_resource?(name, content)
+        is_s2_resource_name?(name) && content.has_key?("uuid")
       end
 
       # @param [String] name
       # @return [Bool]
       def self.is_s2_resources_array?(name, value)
         singular_name = s2_resource_singular(name)
-        singular_name ? is_s2_resource?(singular_name) && value.is_a?(Array) : false 
+        singular_name ? is_s2_resource_name?(singular_name) && value.is_a?(Array) : false 
       end
 
       # @param [String] name
