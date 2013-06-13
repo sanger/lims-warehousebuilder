@@ -17,13 +17,13 @@ module Lims
       
       EXPECTED_ROUTING_KEYS_PATTERNS = [
         '*.*.order.*',
-        '*.*.tube.*',
+        '*.*.tube.*', '*.*.bulkcreatetube.*',
         '*.*.spincolumn.*',
         '*.*.tuberack.*',
         '*.*.transfertubestotubes.*',
         '*.*.sample.*', '*.*.bulkcreatesample.*', 
         '*.*.bulkupdatesample.*', '*.*.bulkdeletesample.*' 
-      ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, ".*")) }
+      ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, "[^\.]*")) }
 
       # @param [Hash] amqp_settings
       # @param [Hash] warehouse_settings
