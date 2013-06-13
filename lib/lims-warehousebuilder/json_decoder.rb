@@ -147,7 +147,7 @@ module Lims::WarehouseBuilder
         # Case a requeued messages arrived, its date is older than
         # the last info we have, then we don't store it.
         message_date = DateTime.parse(payload["date"]).to_time.utc
-        return false if model.updated_at && message_date < model.updated_at 
+        return false if model.respond_to?(:updated_at) && model.updated_at && message_date < model.updated_at 
 
         attributes = model.columns - model.class.ignoreable - [model.primary_key]
         attributes.each do |attribute|
@@ -172,7 +172,11 @@ module Lims::WarehouseBuilder
 
         (model.columns - [model.primary_key]).each do |attribute|
           payload_key = model.class.translations.inverse[attribute] || attribute.to_s 
-          value = seek(payload, payload_key)
+          value = case payload_key
+                  when Array then payload_key.inject("") { |m,k| k.is_a?(Symbol) ? m << seek(payload, k) : m << k}
+                  else seek(payload, payload_key) 
+                  end
+
           model.send("#{attribute}=", value) unless value.nil? # use nil? otherwise side effect with boolean values
         end
         model
