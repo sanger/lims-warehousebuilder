@@ -3,6 +3,7 @@ Sequel.migration do
     alter_table :current_samples do
       add_column :deleted_at, DateTime
       add_column :deleted_by, String
+      add_column :state, String
 
       add_column :hmdmc_number, String
       add_column :supplier_sample_name, String
@@ -52,6 +53,7 @@ Sequel.migration do
     alter_table :historic_samples do
       add_column :deleted_at, DateTime
       add_column :deleted_by, String
+      add_column :state, String
 
       add_column :hmdmc_number, String
       add_column :supplier_sample_name, String
