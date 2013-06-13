@@ -13,7 +13,6 @@ module Lims
       include TableMigration
 
       attribute :queue_name, String, :required => true, :writer => :private
-      attribute :routing_keys, Array, :required => false, :writer => :private
       attribute :log, Object, :required => false, :writer => :private
       
       EXPECTED_ROUTING_KEYS_PATTERNS = [
@@ -30,7 +29,6 @@ module Lims
       # @param [Hash] warehouse_settings
       def initialize(amqp_settings, warehouse_settings)
         @queue_name = amqp_settings.delete("queue_name")
-        @routing_keys = amqp_settings.delete("routing_keys")
         consumer_setup(amqp_settings)
         set_queue
       end
@@ -49,7 +47,7 @@ module Lims
       # the resource gives back an instance of a Sequel model, ready 
       # to be saved in the warehouse.
       def set_queue
-        self.add_queue(queue_name, routing_keys) do |metadata, payload|
+        self.add_queue(queue_name) do |metadata, payload|
           log.info("Message received with the routing key: #{metadata.routing_key}")
           if expected_message?(metadata.routing_key)
             log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
