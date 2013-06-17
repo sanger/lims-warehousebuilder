@@ -50,6 +50,14 @@ module Lims::WarehouseBuilder::Decoder
       it "gets the right decoder for tube rack" do
         described_class.decoder_for("tube_rack").should == JsonDecoder
       end
+
+      it "gets the right decoder for barcode" do
+        described_class.decoder_for("barcode").should == JsonDecoder
+      end
+
+      it "gets the right decoder for labellable" do
+        described_class.decoder_for("labellable").should == LabellableDecoder
+      end
     end
 
     context "map attributes to a model" do
