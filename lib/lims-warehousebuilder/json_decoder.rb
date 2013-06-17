@@ -104,8 +104,11 @@ module Lims::WarehouseBuilder
 
       # @param [String] name
       # @return [Bool]
+      # A union between S2_MODELS and NameToDecoder is needed here
+      # for the case a s2 resource doesn't have direct corresponding
+      # model in the warehouse. For example: labellable.
       def self.is_s2_resource_name?(name)
-        ResourceTools::Database::S2_MODELS.include?(name)
+        (ResourceTools::Database::S2_MODELS | NameToDecoder.keys - ["json"]).include?(name)
       end
 
       # @param [String] name
