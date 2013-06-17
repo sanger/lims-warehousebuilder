@@ -13,11 +13,15 @@ module Lims::WarehouseBuilder
       })
 
       def self.barcode_by_sanger_barcode(value)
-        self.dataset.from(current_table_name).where(:sanger_barcode => value).first
+        barcode = self.dataset.from(current_table_name).where(:sanger_barcode => value).first
+        raise NotFound, "The Sanger barcode #{value} cannot be found" unless barcode
+        barcode
       end
 
       def self.barcode_by_ean13_barcode(value)
-        self.dataset.from(current_table_name).where(:ean13_barcode => value).first
+        barcode = self.dataset.from(current_table_name).where(:ean13_barcode => value).first
+        raise NotFound, "The ean13 barcode #{value} cannot be found" unless barcode
+        barcode
       end
     end
   end
