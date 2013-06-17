@@ -12,6 +12,13 @@ module Lims::WarehouseBuilder
         [:sanger__prefix, :sanger__number, :sanger__suffix] => :sanger_barcode
       })
 
+      def self.barcode_by_sanger_barcode(value)
+        self.dataset.from(current_table_name).where(:sanger_barcode => value).first
+      end
+
+      def self.barcode_by_ean13_barcode(value)
+        self.dataset.from(current_table_name).where(:ean13_barcode => value).first
+      end
     end
   end
 end
