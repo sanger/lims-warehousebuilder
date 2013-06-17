@@ -5,8 +5,7 @@ require 'lims-warehousebuilder/table_migration'
 module Lims
   module WarehouseBuilder
 
-    class MessageToBeRequeued < StandardError
-    end
+    MessageToBeRequeued = Class.new(StandardError)
 
     class Builder
       include Lims::BusClient::Consumer
@@ -59,9 +58,9 @@ module Lims
               save(objects)
               metadata.ack
               log.info("Message processed and acknowledged")
-            rescue MessageToBeRequeued
+            rescue MessageToBeRequeued => e
               metadata.reject(:requeue => true)
-              log.info("Message requeued")
+              log.info("Message requeued: #{e}")
             rescue Model::ProcessingFailed => ex
               # TODO: use the dead lettering queue
               metadata.reject
