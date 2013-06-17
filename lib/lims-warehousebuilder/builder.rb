@@ -23,7 +23,8 @@ module Lims
         '*.*.transfertubestotubes.*',
         '*.*.sample.*', '*.*.bulkcreatesample.*', 
         '*.*.bulkupdatesample.*', '*.*.bulkdeletesample.*',
-        '*.*.barcode.create', '*.*.bulkcreatebarcode.*', '*.*.labellable.create'
+        '*.*.barcode.create', '*.*.bulkcreatebarcode.*',
+        '*.*.labellable.create', '*.*.bulkcreatelabellable.*'
       ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, "[^\.]*")) }
 
       # @param [Hash] amqp_settings
