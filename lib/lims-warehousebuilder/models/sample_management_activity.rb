@@ -2,10 +2,62 @@ require 'lims-warehousebuilder/core_ext'
 
 module Lims::WarehouseBuilder
   module Model
-    class SampleManagementActivity < Sequel::Model(:historic_sample_management_activity)
+    class SampleManagementActivity < Sequel::Model(:sample_management_activity)
 
-      include ResourceTools::Mapping
-      include Common
+      def before_save
+        set_order_id!
+        has_duplicate?
+      end
+
+      def after_save
+        update_is_current_flag
+      end
+
+      # @param [String] sample_uuid
+      def set_sample_id!(sample_uuid)
+        sample = Model.model_for_uuid(sample_uuid, "sample")
+        self.sample_id = sample.internal_id
+      end
+
+      # @param [String] order_uuid
+      # Order and Activity come from a same message. So the first
+      # time an order message is received, we decode the order
+      # and the corresponding activities, BUT the order is not yet
+      # stored in the database. That's why the order_id is set 
+      # in the before_save filter, once the order is previously 
+      # saved (as it's returned in first position by OrderDecoder#_call).
+      def set_order_uuid(order_uuid)
+        @order_uuid = order_uuid
+      end
+
+      # @param [String] container_uuid
+      # @param [String] modelname
+      def set_sample_container_id!(container_uuid, modelname)
+        container = Model.model_for_uuid(container_uuid, modelname)
+        container_field = "#{modelname}_id="
+        if self.respond_to?(container_field)
+          self.send("#{modelname}_id=", container.internal_id)
+        else
+          raise DBSchemaError, "#{container_field} column cannot be found in sample_management_activity table"
+        end
+      end
+
+      private
+
+      def set_order_id!
+        order = Model.model_for_uuid(@order_uuid, "order")
+        self.order_id = order.internal_id
+      end
+
+      def update_is_current_flag
+        # TODO
+      end
+
+      def has_duplicate?
+        # TODO
+      end
+
+      # old
 
       # @param [String] uuid
       # @return [Array<Models::SampleManagementActivity>]
