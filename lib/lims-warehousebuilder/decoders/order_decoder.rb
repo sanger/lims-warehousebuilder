@@ -45,7 +45,7 @@ module Lims::WarehouseBuilder
                   activities << activity 
                 end
               rescue Model::NotFound, Model::DBSchemaError => e
-                raise MessageToBeRequeue.new(e.message)
+                raise MessageToBeRequeued.new(e.message)
               end
             end
           end
