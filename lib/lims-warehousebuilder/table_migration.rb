@@ -25,13 +25,17 @@ module Lims::WarehouseBuilder
       # activity table. Then, the trigger first gets back the value of the
       # internal_id, delete that row, and insert a new row using the same
       # internal_id.
+      # The foreign key constraints need to be disabled during that operation
+      # as sample_management_activity references some of them.
       after_trigger(
         %Q{
         BEGIN
         DECLARE id INT;
         SET id = (SELECT internal_id FROM #{current_table} WHERE uuid = NEW.uuid);
+        SET FOREIGN_KEY_CHECKS = 0;
         DELETE FROM #{current_table} WHERE uuid = NEW.uuid;
         INSERT INTO #{current_table}(#{columns.join(',')}) VALUES(id,#{new_values});
+        SET FOREIGN_KEY_CHECKS = 1;
         END
         },
           :name => "maintain_#{current_table}_trigger",
