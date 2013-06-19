@@ -16,6 +16,9 @@ Sequel.migration do
       String :status
       DateTime :date
       TrueClass :is_current
+
+      # Improve performance of models/sample_management_activity.rb#has_duplicate?
+      index [:sample_id, :order_id, :tube_id, :spin_column_id]
     end
   end
 end
