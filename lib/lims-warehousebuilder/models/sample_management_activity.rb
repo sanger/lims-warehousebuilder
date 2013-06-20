@@ -1,4 +1,5 @@
 require 'lims-warehousebuilder/core_ext'
+require 'digest'
 
 module Lims::WarehouseBuilder
   module Model
@@ -6,6 +7,7 @@ module Lims::WarehouseBuilder
 
       def before_save
         set_order_id!
+        set_hashed_index!
         return false if has_duplicate?
         update_is_current_flag
       end
@@ -57,22 +59,27 @@ module Lims::WarehouseBuilder
         }).update(:is_current => 0)
       end
 
+      # Compute a unique representation of the activity and store
+      # it in hashed_index. The hash is computed from sample_id, order_id,
+      # process, step, status, resource_id (either tube_id or spin_column_id)
+      # and the resource_type (either tube or spin_column)
+      # TODO: make resource_id and resource_type generic. What if a new labware column is added?
+      # need to update this method...
+      # Also, if another activity instance has the same hashed_index, we can assume
+      # it represents the same activity.
+      def set_hashed_index!
+        resource_id = tube_id ? tube_id : spin_column_id
+        resource_type = tube_id ? "tube" : "spin_column"
+        value = [sample_id, order_id, process, step, status, resource_id, resource_type].join
+        self.hashed_index = Digest::MD5.hexdigest(value)        
+      end
+
       # @return [Bool]
       # Return true if the current model is already 
       # stored in the database. 
-      # TODO: possible bottleneck here. There is a multi-columns
-      # index on (sample_id, order_id, tube_id, spin_column_id).
-      # Is it enough?
+      # Hashed_index column is indexed.
       def has_duplicate?
-        self.class.dataset.where({
-          :sample_id => sample_id,
-          :order_id => order_id,
-          :tube_id => tube_id,
-          :spin_column_id => spin_column_id,
-          :process => process,
-          :step => step,
-          :status => status
-        }).count > 0
+        self.class.dataset.where(:hashed_index => self.hashed_index).count > 0
       end
     end
   end
