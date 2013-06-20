@@ -2,7 +2,6 @@ defaults: &defaults
   url: "amqp://localhost:5672"
   durable: true
   empty_queue_disconnect_interval: 0
-  message_timeout: 120
 
 test:
   <<: *defaults
