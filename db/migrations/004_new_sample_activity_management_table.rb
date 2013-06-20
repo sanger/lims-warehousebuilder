@@ -1,8 +1,5 @@
 Sequel.migration do
   change do
-    drop_table :current_sample_management_activity
-    drop_table :historic_sample_management_activity
-
     create_table :sample_management_activity do
       primary_key :internal_id
       foreign_key :sample_id, :current_samples, :key => :internal_id 
