@@ -4,7 +4,7 @@ require 'logging'
 
 module Lims
   module WarehouseBuilder
-    env = ENV["LIMS_WAREHOUSEBUILD_ENV"] or raise "LIMS_WAREHOUSEBUILD_ENV is not set in the environment"
+    env = ENV["LIMS_WAREHOUSEBUILDER_ENV"] or raise "LIMS_WAREHOUSEBUILDER_ENV is not set in the environment"
 
     amqp_settings = YAML.load_file(File.join('config','amqp.yml'))[env]
     warehouse_settings = YAML.load_file(File.join('config','database.yml'))[env]
