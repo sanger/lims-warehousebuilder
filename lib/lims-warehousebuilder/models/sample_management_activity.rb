@@ -9,7 +9,7 @@ module Lims::WarehouseBuilder
         set_order_id!
         set_hashed_index!
         return false if has_duplicate?
-        update_is_current_flag
+        set_is_current!
       end
 
       # @param [String] sample_uuid
@@ -42,20 +42,46 @@ module Lims::WarehouseBuilder
       end
 
       private
+  
+      # If a more recent activity than self is found
+      # we do not change anything and set is_current to 0.
+      # Otherwise, it means self is the most recent activity,
+      # we update is_current flag of similar activities and
+      # set self.is_current to 1.
+      def set_is_current!
+        most_recent_id = most_recent_activity
+        unless most_recent_id
+          update_is_current_flag
+          self.is_current = 1
+        else
+          self.is_current = 0
+        end
+      end
 
       def set_order_id!
         order = Model.model_for_uuid(@order_uuid, "order")
         self.order_id = order.internal_id
       end
 
+      # @return [Bool]
+      # Return the internal id if a more recent
+      # activity than self is found.
+      def most_recent_activity
+        result = self.class.dataset.where({
+          :sample_id => sample_id,
+          :order_id => order_id,
+          :is_current => 1
+        }).where('date > ?', date).first
+        result ? result[:internal_id] : nil
+      end
+
       # Set is_current to 0 for all the rows 
       # which mention <sample_id> and <order_id>
-      # TODO: do not update if the date in the database is more recent 
-      # than the one in the message
       def update_is_current_flag
         self.class.dataset.where({
-          :order_id => order_id, 
-          :sample_id => sample_id
+          :sample_id => sample_id,
+          :order_id => order_id,
+          :is_current => 1
         }).update(:is_current => 0)
       end
 
