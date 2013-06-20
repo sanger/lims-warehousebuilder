@@ -19,6 +19,7 @@ Sequel.migration do
       String :hashed_index
 
       index :hashed_index
+      index [:sample_id, :order_id]
     end
   end
 end
