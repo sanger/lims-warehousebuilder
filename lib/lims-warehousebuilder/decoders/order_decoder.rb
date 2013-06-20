@@ -36,8 +36,7 @@ module Lims::WarehouseBuilder
                     :step => role,
                     :user => user,
                     :date => date,
-                    :status => status,
-                    :is_current => 1
+                    :status => status
                   })
                   activity.set_sample_id!(sample_info[:sample_uuid])
                   activity.set_sample_container_id!(sample_info[:container_uuid], sample_info[:container_model])
