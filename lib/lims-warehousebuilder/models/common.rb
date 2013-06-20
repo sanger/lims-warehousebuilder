@@ -17,12 +17,12 @@ module Lims::WarehouseBuilder
       # The other time, when we try to set a new value in
       # created_at, it is actually set in updated_at.
       def created_at=(value)
-        self.created_at ? self.updated_at = value : super(value)
+        (self.respond_to?(:updated_at) && self.created_at) ? self.updated_at = value : super(value)
       end
 
       # Same behaviour with created_at=
       def created_by=(value)
-        self.created_by ? self.updated_by = value : super(value)
+        (self.respond_to?(:updated_by) && self.created_by) ? self.updated_by = value : super(value)
       end
 
       def self.included(klass)
