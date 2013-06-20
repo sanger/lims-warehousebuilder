@@ -1,9 +1,9 @@
 GIT
   remote: http://github.com/sanger/lims-core.git
-  revision: 8df3f706c8a1c273433173527562ac2535f7da9f
-  branch: development
+  revision: d1b0a6bf030490a89eed7d1eaf0c290b33d23240
+  branch: master
   specs:
-    lims-core (2.1.0.3.0)
+    lims-core (2.1.1)
       active_support
       aequitas
       bunny (= 0.9.0.pre10)
@@ -16,10 +16,10 @@ GIT
 
 GIT
   remote: http://github.com/sanger/lims-laboratory-app.git
-  revision: 149e2068b5703d66ac982f5dd7dbf7c2c78789de
-  branch: development
+  revision: ffaff16459760eb4006bb18c27495e9d750150aa
+  branch: master
   specs:
-    lims-laboratory-app (1.4.1)
+    lims-laboratory-app (1.4.0)
 
 GIT
   remote: http://github.com/sanger/psd_logger.git
@@ -29,10 +29,10 @@ GIT
 
 GIT
   remote: https://github.com/sanger/lims-busclient.git
-  revision: 6a7587c14f85d084e2729ddddccc9d56a48f7243
-  branch: development
+  revision: 93b50fe11c6d07d8f19ede9ac13a8440f7c57b7e
+  branch: master
   specs:
-    lims-busclient (0.3.0)
+    lims-busclient (0.2.0)
       aequitas
       amqp
       facets
@@ -117,7 +117,7 @@ PLATFORMS
 DEPENDENCIES
   debugger
   debugger-completion
-  lims-busclient (~> 0.3.0)!
+  lims-busclient (~> 0.2.0)!
   lims-core (~> 2.1)!
   lims-laboratory-app (~> 1.4)!
   lims-warehousebuilder!
