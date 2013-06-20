@@ -1,6 +1,4 @@
 require 'lims-warehousebuilder/json_decoder'
-require 'rubygems'
-require 'ruby-debug/debugger'
 
 module Lims::WarehouseBuilder
   module Decoder
@@ -8,6 +6,9 @@ module Lims::WarehouseBuilder
 
       private
 
+      # The order needs to be in the first position in the 
+      # returned array as sample_management_activity needs it
+      # to be saved first to get its internal_id.
       def _call(options)
         order = super
         [order, sample_management_activity]
