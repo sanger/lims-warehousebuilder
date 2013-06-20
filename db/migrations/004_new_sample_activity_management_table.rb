@@ -16,9 +16,9 @@ Sequel.migration do
       String :status
       DateTime :date
       TrueClass :is_current
+      String :hashed_index
 
-      # Improve performance of models/sample_management_activity.rb#has_duplicate?
-      index [:sample_id, :order_id, :tube_id, :spin_column_id]
+      index :hashed_index
     end
   end
 end
