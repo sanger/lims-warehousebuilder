@@ -20,9 +20,10 @@ module Lims::WarehouseBuilder
         @payload = payload
       end
 
+      # @param [Hash] options
       # @return [Array<Sequel::Model>]
-      def call
-        result = _call
+      def call(options = {})
+        result = _call(options)
         result.is_a?(Array) ? result.flatten.compact : [result]
       end
 
@@ -42,10 +43,17 @@ module Lims::WarehouseBuilder
         payload = payload.is_a?(Hash) ? payload : self.to_hash(payload)
 
         payload.each do |key, value|
-          if is_s2_resource?(key)
+          if is_s2_resource?(key, value)
             value = complete_value(value, payload, payload_ancestor)
             payload_ancestor = {:model => key, :uuid => payload[key]["uuid"]}
             block.call(key, value)
+          elsif is_s2_resources_array?(key, value)
+            # Handle the case we have an array of resources like
+            # :samples => [{sample1}, {sample2},...]
+            # The following add the type in front of each resource
+            # in the array. For example: 
+            # :samples => [{:sample => {sample1}, {:sample => {sample2}}, ...]
+            value = value.map { |v| {s2_resource_singular(key) => v} } 
           end
 
           case value
@@ -96,12 +104,40 @@ module Lims::WarehouseBuilder
 
       # @param [String] name
       # @return [Bool]
-      def self.is_s2_resource?(name)
-        ResourceTools::Database::S2_MODELS.include?(name)
+      # A union between S2_MODELS and NameToDecoder is needed here
+      # for the case a s2 resource doesn't have direct corresponding
+      # model in the warehouse. For example: labellable.
+      def self.is_s2_resource_name?(name)
+        (ResourceTools::Database::S2_MODELS | NameToDecoder.keys - ["json"]).include?(name)
       end
 
+      # @param [String] name
+      # @param [Hash] content
+      # @return [Bool]
+      # Return true if the name is a s2 resource name and if the resource has an uuid.
+      # The uuid criteria is used to discard the content which have a s2 name
+      # but are not a resource (like in bulk_create_tube, the action parameters are 
+      # listed under "tubes").
+      def self.is_s2_resource?(name, content)
+        is_s2_resource_name?(name) && content.has_key?("uuid")
+      end
+
+      # @param [String] name
+      # @return [Bool]
+      def self.is_s2_resources_array?(name, value)
+        singular_name = s2_resource_singular(name)
+        singular_name ? is_s2_resource_name?(singular_name) && value.is_a?(Array) : false 
+      end
+
+      # @param [String] name
+      # @return [String]
+      def self.s2_resource_singular(name)
+        name.match(/^(\w*)s$/) ? $1 : nil
+      end
+
+      # @param [Hash] options
       # @return [Array<Sequel::Model>]
-      def _call
+      def _call(options)
         [map_attributes_to_model(prepared_model(@payload["uuid"], @model))]
       end
 
@@ -114,7 +150,7 @@ module Lims::WarehouseBuilder
         # Case a requeued messages arrived, its date is older than
         # the last info we have, then we don't store it.
         message_date = DateTime.parse(payload["date"]).to_time.utc
-        return false if model.updated_at && message_date < model.updated_at 
+        return false if model.respond_to?(:updated_at) && model.updated_at && message_date < model.updated_at 
 
         attributes = model.columns - model.class.ignoreable - [model.primary_key]
         attributes.each do |attribute|
@@ -139,8 +175,12 @@ module Lims::WarehouseBuilder
 
         (model.columns - [model.primary_key]).each do |attribute|
           payload_key = model.class.translations.inverse[attribute] || attribute.to_s 
-          value = seek(payload, payload_key)
-          model.send("#{attribute}=", value) if value
+          value = case payload_key
+                  when Array then payload_key.inject("") { |m,k| k.is_a?(Symbol) ? m << seek(payload, k) : m << k}
+                  else seek(payload, payload_key) 
+                  end
+
+          model.send("#{attribute}=", value) unless value.nil? # use nil? otherwise side effect with boolean values
         end
         model
       end
