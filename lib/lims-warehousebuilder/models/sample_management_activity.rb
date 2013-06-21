@@ -6,7 +6,7 @@ module Lims::WarehouseBuilder
     class SampleManagementActivity < Sequel::Model(:sample_management_activity)
 
       def before_save
-        set_order_id!
+        set_order_id! if @order_uuid
         set_hashed_index!
         return false if has_duplicate?
         set_is_current!
