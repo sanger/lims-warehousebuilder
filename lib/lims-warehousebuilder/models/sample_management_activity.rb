@@ -1,4 +1,3 @@
-require 'lims-warehousebuilder/core_ext'
 require 'digest'
 
 module Lims::WarehouseBuilder
@@ -6,7 +5,8 @@ module Lims::WarehouseBuilder
     class SampleManagementActivity < Sequel::Model(:sample_management_activity)
 
       def before_save
-        set_order_id!
+        super
+        set_order_id! if @order_uuid
         set_hashed_index!
         return false if has_duplicate?
         set_is_current!

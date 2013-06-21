@@ -24,6 +24,11 @@ module Lims::WarehouseBuilder
         :cellular_material__lysed => :cellular_material_lysed
       })
 
+      def self.sample_by_uuid(sample_uuid)
+        sample = self.dataset.from(current_table_name).where(:uuid => sample_uuid).first
+        raise NotFound, "The sample #{sample_uuid} cannot be found" unless sample
+        sample
+      end
     end
   end
 end
