@@ -29,6 +29,13 @@ module Lims::WarehouseBuilder
         end
       end
 
+      # This method saves the sample activity for each sample
+      # found in a s2_resource. It succeeds if for the sample,
+      # we can find an item associated to its container uuid,
+      # a sample row and an order associated with its container.
+      # If not, we just skip, and the sample activity could be
+      # handled in the order_decoder.
+      # @return [Sequel::SampleManagementActivity,Nil]
       def sample_management_activity
         sample_uuid = @payload["uuid"]
         container_uuid = @payload["ancestor_uuid"]
