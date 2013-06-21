@@ -119,10 +119,11 @@ Sequel.migration do
     # items
     create_table :current_items do
       primary_key :internal_id
+      Integer :order_id
+      String :role
       String :uuid, :fixed => true, :size => 64
       String :batch_uuid, :fixed => true, :size => 64
       String :status
-      String :role
       DateTime :created_at
       DateTime :updated_at
       String :created_by
@@ -132,10 +133,11 @@ Sequel.migration do
 
     create_table :historic_items do
       primary_key :internal_id
+      Integer :order_id
+      String :role
       String :uuid, :fixed => true, :size => 64
       String :batch_uuid, :fixed => true, :size => 64
       String :status
-      String :role
       DateTime :created_at
       DateTime :updated_at
       String :created_by

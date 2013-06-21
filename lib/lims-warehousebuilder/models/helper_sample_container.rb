@@ -17,31 +17,14 @@ module Lims::WarehouseBuilder
       # @return [Array]
       def self.samples_info_by_item_uuid(item_uuid)
         rows = self.where(:container_uuid => item_uuid).all
-        unless rows.empty?
-          rows.map do |r|
-            {
-              :sample_uuid => r.sample_uuid, 
-              :container_uuid => r.container_uuid, 
-              :container_model => r.container_model
-            }
-          end
-        else
-          raise NotFound, "no sample found for container #{item_uuid}"
+        rows.map do |r|
+          {
+            :sample_uuid => r.sample_uuid, 
+            :container_uuid => r.container_uuid, 
+            :container_model => r.container_model
+          }
         end
       end
-
-      # @param [String] uuid
-      # @return [Array<String>]
-      def self.sample_uuids_by_container_uuid(uuid)
-        row = self.where(:container_uuid => uuid).select(:sample_uuid).all
-        unless row.empty?
-          row.map { |r| r.sample_uuid }
-        else
-          raise NotFound, "no sample uuid found for container #{uuid}"
-        end
-      end
-
     end
   end
 end
-

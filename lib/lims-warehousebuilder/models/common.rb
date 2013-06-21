@@ -10,6 +10,7 @@ module Lims::WarehouseBuilder
       include TableMigration
 
       def before_save
+        super
         maintain_warehouse_for(self.class)
       end
 
