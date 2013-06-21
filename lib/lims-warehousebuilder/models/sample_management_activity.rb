@@ -1,4 +1,3 @@
-require 'lims-warehousebuilder/core_ext'
 require 'digest'
 
 module Lims::WarehouseBuilder
