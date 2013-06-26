@@ -9,7 +9,7 @@ module Lims::WarehouseBuilder
         set_order_id! if @order_uuid
         set_hashed_index!
         return false if has_duplicate?
-        set_is_current!
+        set_previous_activity_current_to!
       end
 
       # @param [String] sample_uuid
@@ -43,46 +43,23 @@ module Lims::WarehouseBuilder
 
       private
   
-      # If a more recent activity than self is found
-      # we do not change anything and set is_current to 0.
-      # Otherwise, it means self is the most recent activity,
-      # we update is_current flag of similar activities and
-      # set self.is_current to 1.
-      def set_is_current!
-        most_recent_id = most_recent_activity
-        unless most_recent_id
-          update_is_current_flag
-          self.is_current = 1
-        else
-          self.is_current = 0
-        end
+      # Set the date in current_to column for
+      # the last activity of the sample given
+      # a particular step. The date an activity
+      # stops to be current is the date the next
+      # activity starts to be current.
+      def set_previous_activity_current_to!
+        self.class.dataset.where({
+          :sample_id => sample_id,
+          :order_id => order_id,
+          :step => step,
+          :current_to => nil
+        }).update(:current_to => current_from)
       end
 
       def set_order_id!
         order = Model.model_for_uuid(@order_uuid, "order")
         self.order_id = order.internal_id
-      end
-
-      # @return [Bool]
-      # Return the internal id if a more recent
-      # activity than self is found.
-      def most_recent_activity
-        result = self.class.dataset.where({
-          :sample_id => sample_id,
-          :order_id => order_id,
-          :is_current => 1
-        }).where('date > ?', date).first
-        result ? result[:internal_id] : nil
-      end
-
-      # Set is_current to 0 for all the rows 
-      # which mention <sample_id> and <order_id>
-      def update_is_current_flag
-        self.class.dataset.where({
-          :sample_id => sample_id,
-          :order_id => order_id,
-          :is_current => 1
-        }).update(:is_current => 0)
       end
 
       # Compute a unique representation of the activity and store
@@ -110,4 +87,3 @@ module Lims::WarehouseBuilder
     end
   end
 end
-
