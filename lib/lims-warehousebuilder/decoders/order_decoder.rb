@@ -67,7 +67,7 @@ module Lims::WarehouseBuilder
                       :process => process,
                       :step => role,
                       :user => user,
-                      :date => date,
+                      :current_from => date,
                       :status => status
                     })
                     activity.set_sample_id!(sample_info[:sample_uuid])
@@ -76,7 +76,7 @@ module Lims::WarehouseBuilder
                     activities << activity 
                   end
                 end
-              rescue Model::DBSchemaError => e
+              rescue Model::DBSchemaError, Model::NotFound => e
                 raise MessageToBeRequeued.new(e.message)
               end
             end
