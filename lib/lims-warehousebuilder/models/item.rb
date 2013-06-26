@@ -19,9 +19,7 @@ module Lims::WarehouseBuilder
       end
 
       def self.item_by_uuid(item_uuid)
-        item = self.dataset.from(current_table_name).where(:uuid => item_uuid).first
-        raise NotFound, "The item corresponding to the resource #{item_uuid} cannot be found" unless item
-        item
+        Model.model_for_uuid(item_uuid, "item")
       end
 
       private
