@@ -73,8 +73,10 @@ module Lims::WarehouseBuilder
 
       # @param [String] name
       # @return [JsonDecoder]
+      # NameToDecoder keys do not include any special characters.
       def self.decoder_for(name)
-        NameToDecoder[name] ? NameToDecoder[name] : NameToDecoder["json"]
+        name_alphanum = name.gsub(/[^0-9a-zA-Z]/, '')
+        NameToDecoder[name_alphanum] ? NameToDecoder[name_alphanum] : NameToDecoder["json"]
       end
 
       # @param [String] json
@@ -141,12 +143,35 @@ module Lims::WarehouseBuilder
         [map_attributes_to_model(prepared_model(@payload["uuid"], @model))]
       end
 
+      # Sometimes only the updated_at/by is needed to be
+      # updated but no other attributes are changed.
+      # In that case, we can pass the to_be_saved? validation
+      # settings the force_save parameter to true.
+      # For example, when we update a tube rack just adding a new
+      # tube, none of the tube rack parameters are changed, but we
+      # need to update the date.
+      def force_save!
+        @force_save = true
+      end
+
+      # The force save parameter is used only one time. It is 
+      # resetted to false after it has been consumed by
+      # to_be_saved? validation.
+      def reset_force_save
+        @force_save = false
+      end
+
       # @param [Sequel::Model] model
       # @param [Hash] payload
       # For each attribute of the model, we check if there is a new
       # value in the payload to update it. If nothing is new, we don't
       # need to continue to deal with that model.
       def to_be_saved?(model, payload)
+        if @force_save
+          reset_force_save
+          return true
+        end
+
         # Case a requeued messages arrived, its date is older than
         # the last info we have, then we don't store it.
         message_date = DateTime.parse(payload["date"]).to_time.utc
@@ -154,9 +179,10 @@ module Lims::WarehouseBuilder
 
         attributes = model.columns - model.class.ignoreable - [model.primary_key]
         attributes.each do |attribute|
+          model_value = model.send(attribute)
           payload_key = model.class.translations.inverse[attribute] || attribute.to_s 
           # There is at least one new attribute which needs to be saved
-          return true if attribute != seek(payload, payload_key)
+          return true if model_value != seek(payload, payload_key)
         end
         false
       end
