@@ -36,7 +36,7 @@ module Lims::WarehouseBuilder
     def self.model_for_uuid(uuid, modelname)
       model = model_for(modelname)
       result = model.from(model.current_table_name).where(:uuid => uuid).first
-      raise NotFound, "Cannot found record for uuid #{uuid} and model #{modelname}" unless result
+      raise NotFound, "#{modelname} #{uuid} not found" unless result
       result
     end
 
