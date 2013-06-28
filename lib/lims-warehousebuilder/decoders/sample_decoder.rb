@@ -55,7 +55,7 @@ module Lims::WarehouseBuilder
             :process => order.pipeline,
             :step => item.role,
             :user => user,
-            :date => date,
+            :current_from => date,
             :status => item.status
           })
           activity.set_sample_container_id!(container_uuid, container_type)

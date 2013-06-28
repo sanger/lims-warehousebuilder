@@ -25,9 +25,7 @@ module Lims::WarehouseBuilder
       })
 
       def self.sample_by_uuid(sample_uuid)
-        sample = self.dataset.from(current_table_name).where(:uuid => sample_uuid).first
-        raise NotFound, "The sample #{sample_uuid} cannot be found" unless sample
-        sample
+        Model.model_for_uuid(sample_uuid, "sample")
       end
     end
   end
