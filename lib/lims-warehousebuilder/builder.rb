@@ -18,7 +18,7 @@ module Lims
         '*.*.order.*',
         '*.*.tube.*', '*.*.bulkcreatetube.*',
         '*.*.spincolumn.*',
-        '*.*.tuberack.*',
+        '*.*.tuberack.*', '*.*.tuberackmove.*',
         '*.*.transfertubestotubes.*',
         '*.*.sample.*', '*.*.bulkcreatesample.*', 
         '*.*.bulkupdatesample.*', '*.*.bulkdeletesample.*',
