@@ -4,21 +4,16 @@ require 'lims-warehousebuilder/model'
 module Lims::WarehouseBuilder
   describe Model do
 
-    before(:each) do
-      @subject = Object.new
-      @subject.extend(described_class)
+    let(:model) do
+      Class.new { extend Model }.new
     end
 
     context "basic functionalities" do
       include_context "use database"
 
       it "responds to basic methods" do
-        @subject.should respond_to(
-          :model_for,
-          :model_for_uuid,
-          :prepared_model,
-          :clone_model_object
-        )
+        Model.should respond_to(:model_for, :model_for_uuid, :clone_model_object)
+        model.should respond_to(:prepared_model)
       end
     end
 
@@ -26,7 +21,7 @@ module Lims::WarehouseBuilder
       let(:modelname) { "sample" }   
 
       it "returns a sequel model" do
-        @subject.model_for(modelname).should == Model::Sample
+        Model.model_for(modelname).should == Model::Sample
       end
     end
 
@@ -35,7 +30,7 @@ module Lims::WarehouseBuilder
 
       it "raises an exception" do
         expect {
-          @subject.model_for(dummyname)
+          Model.model_for(dummyname)
         }.to raise_error(Model::UnknownModel)
       end
     end
