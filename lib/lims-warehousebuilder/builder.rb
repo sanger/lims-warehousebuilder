@@ -20,7 +20,7 @@ module Lims
         '*.*.spincolumn.*',
         '*.*.tuberack.*', '*.*.tuberackmove.*',
         '*.*.transfertubestotubes.*',
-        '*.*.sample.*', '*.*.bulkcreatesample.*', 
+        '*.*.sample.*', '*.*.bulkcreatesample.*', '*.*.swapsamples.*', 
         '*.*.bulkupdatesample.*', '*.*.bulkdeletesample.*',
         '*.*.barcode.create', '*.*.bulkcreatebarcode.*',
         '*.*.labellable.create', '*.*.bulkcreatelabellable.*'
