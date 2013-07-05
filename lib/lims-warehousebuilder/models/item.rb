@@ -11,7 +11,7 @@ module Lims::WarehouseBuilder
       include Common
 
       def before_create
-        set_order_id!
+        set_order_id! unless self.order_id
       end
 
       def set_order_uuid(order_uuid)
