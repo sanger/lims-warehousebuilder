@@ -44,21 +44,20 @@ module Lims::WarehouseBuilder
         date = @payload["date"]
 
         begin
-          item = Model::Item.item_by_uuid(container_uuid) 
+          item = Model.model_by_uuid(container_uuid, "item")
+          order = Model.model_by_uuid(item.order_uuid, "order")
           sample = Model::Sample.sample_by_uuid(sample_uuid)
-          order = Model::Order.order_by_id(item.order_id)
 
           activity = Model::SampleManagementActivity.new({
-            :sample_id => sample.internal_id,
-            :order_id => item.order_id,
             :uuid => sample_uuid,
+            :order_uuid => order.uuid,
             :process => order.pipeline,
             :step => item.role,
             :user => user,
             :current_from => date,
             :status => item.status
           })
-          activity.set_sample_container_id!(container_uuid, container_type)
+          activity.set_sample_container_uuid!(container_uuid, container_type)
           activity
           # We do not requeue the message if a notfound exception is raised.
           # The sample activity could be managed by the order_decoder in that case.
