@@ -35,12 +35,12 @@ module Lims::WarehouseBuilder
             begin
               tube_model = prepared_model(tube["uuid"], "tube") 
               tube_model.set_tube_rack_uuid(tube_rack_uuid) unless tube_rack_id
-              tube_payload = tube.tap do |p|
-                p["location"] = location
-                p["tube_rack_id"] = tube_rack_id
-                p["date"] = date
-                p["user"] = user
-              end
+              tube_payload = tube.merge({
+                "location" => location,
+                "tube_rack_id" => tube_rack_id,
+                "date" => date,
+                "user" => user
+              })
               tubes << map_attributes_to_model(tube_model, tube_payload)
             rescue Model::NotFound => e
               raise MessageToBeRequeued.new(e.message)
