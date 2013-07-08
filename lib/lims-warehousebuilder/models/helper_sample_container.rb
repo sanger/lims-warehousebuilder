@@ -14,14 +14,6 @@ module Lims::WarehouseBuilder
         self.class.where(values).count == 0
       end
 
-      def to_be_deleted
-        @to_be_deleted = true
-      end
-
-      def to_be_deleted?
-        @to_be_deleted
-      end
-
       # @param [String] item_uuid
       # @return [Array]
       def self.samples_info_by_item_uuid(item_uuid)
@@ -38,8 +30,8 @@ module Lims::WarehouseBuilder
       # @param [String] container_uuid
       # @param [Array] sample_uuids
       # @return [Array]
-      def self.records_by_container_uuid(container_uuid, sample_uuids)
-        self.where(:container_uuid => container_uuid, :sample_uuid => sample_uuids).all
+      def self.helpers_by_container_and_sample_uuids(container_uuids, sample_uuids)
+        self.where(:container_uuid => container_uuids, :sample_uuid => sample_uuids).all
       end
     end
   end
