@@ -64,6 +64,28 @@ module Lims::WarehouseBuilder
         end
         value
       end
+
+      # @param [String] uuid
+      # @param [Hash] payload
+      # @return [String,Nil]
+      # Return the parent key of the uuid in the payload.
+      # @example:
+      # payload = {:aaa => {:bbb => {:ccc => {:uuid => "123"}}}}
+      # parent_key_for_uuid("123", payload) => :ccc
+      def parent_key_for_uuid(uuid, payload=@payload)
+        payload.each do |k,v|
+          if v.is_a?(Hash)
+            parent_key = (v["uuid"] == uuid ? k : parent_key_for_uuid(uuid, v))
+            return parent_key if parent_key
+          elsif v.is_a?(Array)
+            v.each do |v2|
+              parent_key = parent_key_for_uuid(uuid, v2)
+              return parent_key if parent_key
+            end
+          end
+        end
+        nil
+      end
     end
   end
 end
