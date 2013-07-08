@@ -29,6 +29,7 @@ module Lims::WarehouseBuilder
 
       # @param [Hash,String] payload
       # @param [Hash] payload_ancestor
+      # @param [String,Nil] model
       # @param [Block] block
       # Iterate over the payload and call the block for each
       # s2 resource found.
@@ -39,32 +40,46 @@ module Lims::WarehouseBuilder
       # @example
       # If we find a sample, we add to its payload the resource
       # which includes the sample, for example a tube and its uuid.
-      def self.foreach_s2_resource(payload, payload_ancestor = {}, &block) 
+      def self.foreach_s2_resource(payload, payload_ancestor = {}, model=nil, &block) 
         payload = payload.is_a?(Hash) ? payload : self.to_hash(payload)
 
         payload.each do |key, value|
-          if is_s2_resource?(key, value)
+          next unless value.is_a?(Hash) || value.is_a?(Array) # Prevent useless loop
+          singular_key = s2_resource_singular(key)
+
+          # Handle usual s2_resource: :tube => {tube payload}
+          # and nested s2 resource with indirect key: :tubes => {"A1" => {tube payload}, "A2" => ...}
+          model = is_s2_resource_name?(key) ? key : (is_s2_resource_name?(singular_key) ? singular_key : model)
+
+          if is_s2_resource?(model, value)
             value = complete_value(value, payload, payload_ancestor)
-            payload_ancestor = {:model => key, :uuid => payload[key]["uuid"]}
-            block.call(key, value)
+            payload_ancestor = {:model => model, :uuid => payload[key]["uuid"]}
+            block.call(model, value)
+           
           elsif is_s2_resources_array?(key, value)
-            # Handle the case we have an array of resources like
-            # :samples => [{sample1}, {sample2},...]
-            # The following add the type in front of each resource
-            # in the array. For example: 
-            # :samples => [{:sample => {sample1}, {:sample => {sample2}}, ...]
-            value = value.map { |v| {s2_resource_singular(key) => v} } 
+            # Handle the case we have an array of resources like :samples => [{sample1}, {sample2},...]
+            # The following add the type in front of each resource in the array. For example: 
+            # :samples => [{:sample => {sample1}}, {:sample => {sample2}}, ...]
+            value = value.map { |v| {singular_key => v} } 
+
+          elsif is_a_decoder?(key)
+            # Handle custom decoders like for swap sample. No resource corresponds to <key>, 
+            # we just call the decoder and stop the loop after. It is used only for specific
+            # payload like swap samples for which we need the full message payload to be
+            # able to update correctly the warehouse.
+            block.call(key, value)
+            break
           end
 
           case value
           when Hash then 
             value = complete_value(value, payload, payload_ancestor)
-            foreach_s2_resource(value, payload_ancestor, &block)
+            foreach_s2_resource(value, payload_ancestor, model, &block)
           when Array then 
             value.each do |e|
               if e.is_a?(Hash)
                 e = complete_value(e, payload, payload_ancestor)
-                foreach_s2_resource(e, payload_ancestor, &block)
+                foreach_s2_resource(e, payload_ancestor, model, &block)
               end
             end
           end
@@ -121,7 +136,14 @@ module Lims::WarehouseBuilder
       # but are not a resource (like in bulk_create_tube, the action parameters are 
       # listed under "tubes").
       def self.is_s2_resource?(name, content)
-        is_s2_resource_name?(name) && content.has_key?("uuid")
+        is_s2_resource_name?(name) && content.is_a?(Hash) && content.has_key?("uuid")
+      end
+
+      # @param [String] name
+      # @return [Bool]
+      def self.is_a_decoder?(name)
+        name_alphanum = name.gsub(/[^0-9a-zA-Z]/, '')
+        (NameToDecoder.keys - ["json"]).include?(name_alphanum)
       end
 
       # @param [String] name
