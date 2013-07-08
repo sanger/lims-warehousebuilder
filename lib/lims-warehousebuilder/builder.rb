@@ -6,6 +6,7 @@ module Lims
   module WarehouseBuilder
 
     MessageToBeRequeued = Class.new(StandardError)
+    ProcessingFailed = Class.new(StandardError)
 
     class Builder
       include Lims::BusClient::Consumer
@@ -55,13 +56,13 @@ module Lims
             begin
               action = metadata.routing_key.match(/^[\w\.]*\.(\w*)$/)[1]
               objects = decode_payload(payload, action)
-              save(objects)
+              save_all(objects)
               metadata.ack
               log.info("Message processed and acknowledged")
             rescue MessageToBeRequeued => e
               metadata.reject(:requeue => true)
               log.info("Message requeued: #{e}")
-            rescue Model::ProcessingFailed => ex
+            rescue ProcessingFailed => ex
               # TODO: use the dead lettering queue
               metadata.reject
               log.error("Processing the message '#{metadata.routing_key}' failed with: #{ex.to_s}")
@@ -102,7 +103,7 @@ module Lims
       end
 
       # @param [Array] objects
-      def save(objects)
+      def save_all(objects)
         objects.each do |o|
           begin
             next unless o
