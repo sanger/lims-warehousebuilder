@@ -19,14 +19,13 @@ module Lims::WarehouseBuilder
       end
 
       # Get the tubes in the tube rack, updated with
-      # the tube rack information (location, tube_rack_id).
+      # the tube rack information (location, tube_rack_uuid).
       # We do not save again the tubes which appear in the
       # tube rack payload but which are already saved with the
       # same information (happens after a tube rack update for example).
       # @return [Array]
       def updated_tubes
         tube_rack_uuid = @payload["uuid"]
-        tube_rack_id = Model.model_for_uuid(tube_rack_uuid, "tube_rack").internal_id rescue nil
         date = @payload["date"] 
         user = @payload["user"]
 
@@ -34,10 +33,9 @@ module Lims::WarehouseBuilder
           @payload["tubes"].each do |location, tube|
             begin
               tube_model = prepared_model(tube["uuid"], "tube") 
-              tube_model.set_tube_rack_uuid(tube_rack_uuid) unless tube_rack_id
               tube_payload = tube.merge({
                 "location" => location,
-                "tube_rack_id" => tube_rack_id,
+                "tube_rack_uuid" => tube_rack_uuid,
                 "date" => date,
                 "user" => user
               })
