@@ -25,7 +25,7 @@ module Lims::WarehouseBuilder
       })
 
       def self.sample_by_uuid(sample_uuid)
-        Model.model_for_uuid(sample_uuid, "sample")
+        Model.model_by_uuid(sample_uuid, "sample")
       end
     end
   end
