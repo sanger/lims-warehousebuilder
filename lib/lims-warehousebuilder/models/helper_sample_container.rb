@@ -10,7 +10,16 @@ module Lims::WarehouseBuilder
     class SampleContainerHelper < Sequel::Model(:sample_container_helper)
       
       def before_save
+        super
         self.class.where(values).count == 0
+      end
+
+      def to_be_deleted
+        @to_be_deleted = true
+      end
+
+      def to_be_deleted?
+        @to_be_deleted
       end
 
       # @param [String] item_uuid
@@ -24,6 +33,13 @@ module Lims::WarehouseBuilder
             :container_model => r.container_model
           }
         end
+      end
+
+      # @param [String] container_uuid
+      # @param [Array] sample_uuids
+      # @return [Array]
+      def self.records_by_container_uuid(container_uuid, sample_uuids)
+        self.where(:container_uuid => container_uuid, :sample_uuid => sample_uuids).all
       end
     end
   end
