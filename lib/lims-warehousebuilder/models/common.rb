@@ -2,10 +2,6 @@ require 'lims-warehousebuilder/table_migration'
 
 module Lims::WarehouseBuilder
   module Model
-
-    class ProcessingFailed < StandardError
-    end
-
     module Common
       include TableMigration
 
