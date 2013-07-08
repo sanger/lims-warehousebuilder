@@ -105,7 +105,8 @@ module Lims
       def save(objects)
         objects.each do |o|
           begin
-            o.save if o
+            next unless o
+            o.save
           rescue Sequel::HookFailed => e
             # if the model's before_save method fails
             log.error("Exception raised: #{e}")
