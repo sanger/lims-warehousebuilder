@@ -119,7 +119,7 @@ Sequel.migration do
     # items
     create_table :current_items do
       primary_key :internal_id
-      Integer :order_id
+      foreign_key :order_uuid, :current_orders, :key => :uuid
       String :role
       String :uuid, :fixed => true, :size => 64
       String :batch_uuid, :fixed => true, :size => 64
@@ -133,7 +133,7 @@ Sequel.migration do
 
     create_table :historic_items do
       primary_key :internal_id
-      Integer :order_id
+      foreign_key :order_uuid, :historic_orders, :key => :uuid
       String :role
       String :uuid, :fixed => true, :size => 64
       String :batch_uuid, :fixed => true, :size => 64
