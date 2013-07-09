@@ -1,7 +1,7 @@
 require 'lims-warehousebuilder/models/spec_helper'
 
 module Lims::WarehouseBuilder
-  describe Model::Tube do
+  describe "Model::Tube" do
     include_context "use database"
     include_context "timecop"
 
@@ -17,19 +17,15 @@ module Lims::WarehouseBuilder
     let!(:tube_rack) { Model.model_for("tube_rack").new(:uuid => tube_rack_uuid).save }
 
     let(:object) do 
-      described_class.new.tap do |s|
+      Model.model_for("tube").new.tap do |s|
         s.uuid = uuid
         s.type = type
+        s.tube_rack_uuid = tube_rack_uuid
         s.max_volume = max_volume
         s.created_at = created_at
         s.created_by = created_by
         s.location = location
-        #s.set_tube_rack_uuid(tube_rack_uuid)
       end
-    end
-
-    it "set the tube rack id" do
-      pending
     end
 
     let(:updated_object) do
@@ -42,13 +38,13 @@ module Lims::WarehouseBuilder
 
     it "returns a tube given its uuid" do
       object.save
-      described_class.tube_by_uuid(uuid).should be_a(Model::Tube)
-      (described_class.tube_by_uuid(uuid).values - [:internal_id]).should == (object.values - [:internal_id]) 
+      Model::Tube.tube_by_uuid(uuid).should be_a(Model::Tube)
+      (Model::Tube.tube_by_uuid(uuid).values - [:internal_id]).should == (object.values - [:internal_id]) 
     end
 
     it "raises an error if the tube cannot be found" do
       expect do
-        described_class.tube_by_uuid(uuid)
+        Model::Tube.tube_by_uuid(uuid)
       end.to raise_error(Model::NotFound)
     end
   end

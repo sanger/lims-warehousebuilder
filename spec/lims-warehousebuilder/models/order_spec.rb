@@ -1,7 +1,7 @@
 require 'lims-warehousebuilder/models/spec_helper'
 
 module Lims::WarehouseBuilder
-  describe Model::Order do
+  describe "Model::Order" do
     include_context "use database"
     include_context "timecop"
 
@@ -14,7 +14,7 @@ module Lims::WarehouseBuilder
     let(:created_by) { "username" }
 
     let(:object) do 
-      described_class.new.tap do |s|
+      Model.model_for("order").new.tap do |s|
         s.uuid = uuid
         s.pipeline = pipeline
         s.status = status
@@ -40,8 +40,8 @@ module Lims::WarehouseBuilder
 
         let(:order_id) { db[:current_orders].where(:uuid => uuid).first[:internal_id] }
 
-        it "gets back the order by id" do
-          order = described_class.order_by_id(order_id)
+        it "gets back the order by uuid" do
+          order = Model.model_for("order").order_by_uuid(uuid)
           order.should be_a(Model::Order)
           (order.values - [:internal_id]).should == (object.values - [:internal_id])
         end
@@ -50,7 +50,7 @@ module Lims::WarehouseBuilder
       context "invalid" do
         it "raises a NotFound error for unkown order" do
           expect do
-            described_class.order_by_id(1)
+            Model.model_for("order").order_by_uuid(uuid)
           end.to raise_error(Model::NotFound)
         end
       end
