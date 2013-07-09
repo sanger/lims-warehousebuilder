@@ -39,7 +39,7 @@ module Lims::WarehouseBuilder
             objects << helpers
 
             helpers.each do |helper|
-              objects << sample_management_activity(helper.sample_uuid, helper.container_uuid, helper.container_type)   
+              objects << sample_management_activity(helper.sample_uuid, helper.container_uuid, helper.container_model)   
             end
           end
         end
