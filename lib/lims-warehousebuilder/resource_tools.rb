@@ -73,6 +73,7 @@ module Lims::WarehouseBuilder
       # payload = {:aaa => {:bbb => {:ccc => {:uuid => "123"}}}}
       # parent_key_for_uuid("123", payload) => :ccc
       def parent_key_for_uuid(uuid, payload=@payload)
+        return nil unless payload.respond_to?(:each)
         payload.each do |k,v|
           if v.is_a?(Hash)
             parent_key = (v["uuid"] == uuid ? k : parent_key_for_uuid(uuid, v))
