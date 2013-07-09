@@ -18,21 +18,35 @@ module Lims::WarehouseBuilder::Decoder
         h["uuid"] = uuid
         h["name"] = name
         h["type"] = type
-        h["labels"] = {"front barcode" => {"value" => "123456", "type" => "sanger-barcode"}}
+        h["labels"] = {
+          "front barcode" => {"value" => "123456", "type" => "sanger-barcode"},
+          "back barcode" => {"value" => "78910", "type" => "ean13-barcode"}
+        }
       end
     end
     let(:decoder) { described_class.new(model, payload) }
 
     before do
-      Lims::WarehouseBuilder::Model::Barcode.new({:uuid => "11111111-0000-0000-0000-111111111111", :sanger_barcode => "123456"}).save
+      Lims::WarehouseBuilder::Model::Barcode.new({
+        :uuid => "11111111-0000-0000-0000-111111111111", 
+        :sanger_barcode => "123456", 
+        :ean13_barcode => "78910"
+      }).save
     end
 
     it_behaves_like "a decoder"
 
+    let(:models) { decoder.call }
+
     it "returns an array of Barcode objects" do
-      decoder.call.each do |model|
+      models.size.should == 2 
+      models.each do |model|
         model.should be_a(Lims::WarehouseBuilder::Model::Barcode)
       end
+    end
+
+    it "returns the correct Barcode model" do
+      pending
     end
   end
 end
