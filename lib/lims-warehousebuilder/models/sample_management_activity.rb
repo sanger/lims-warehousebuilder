@@ -31,8 +31,8 @@ module Lims::WarehouseBuilder
       # activity starts to be current.
       def set_previous_activity_current_to!
         self.class.dataset.where({
-          :sample_id => sample_id,
-          :order_id => order_id,
+          :uuid => uuid,
+          :order_uuid => order_uuid,
           :step => step,
           :current_to => nil
         }).update(:current_to => current_from)
