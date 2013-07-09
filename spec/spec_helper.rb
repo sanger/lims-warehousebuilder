@@ -1,6 +1,7 @@
 ENV["LIMS_WAREHOUSEBUILDER_ENV"] = "test" unless defined?(ENV["LIMS_WAREHOUSEBUILDER_ENV"])
 require 'yaml'
 require 'timecop'
+require 'sequel'
 
 def connect_db(env)
   config = YAML.load_file(File.join('config', 'database.yml'))
