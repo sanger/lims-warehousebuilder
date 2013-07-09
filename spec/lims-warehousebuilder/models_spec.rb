@@ -5,14 +5,14 @@ module Lims::WarehouseBuilder
   describe Model do
 
     let(:model) do
-      Class.new { extend Model }.new
+      Class.new { include Model }.new
     end
 
     context "basic functionalities" do
       include_context "use database"
 
       it "responds to basic methods" do
-        Model.should respond_to(:model_for, :model_for_uuid, :clone_model_object)
+        Model.should respond_to(:model_for, :model_by_uuid, :clone_model_object)
         model.should respond_to(:prepared_model)
       end
     end
