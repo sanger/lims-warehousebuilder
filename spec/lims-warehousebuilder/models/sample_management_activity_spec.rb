@@ -21,15 +21,15 @@ module Lims::WarehouseBuilder
 
     let(:order_uuid) { "11111111-2222-3333-4444-666666666666" }
     let!(:current_order_id) do
-      historic_order = Model::Order.new.tap do |o|
+      historic_order = Model.model_for("order").new.tap do |o|
         o.uuid = order_uuid
       end.save
-      Model.model_for_uuid(order_uuid, "order").internal_id
+      Model.model_by_uuid(order_uuid, "order").internal_id
     end
 
     let(:tube_uuid) { "11111111-2222-3333-4444-777777777777" }
     let!(:tube_id) do
-      Model::Tube.new.tap do |t|
+      Model.model_for("tube").new.tap do |t|
         t.uuid = tube_uuid
       end.save.internal_id
     end
@@ -37,9 +37,8 @@ module Lims::WarehouseBuilder
     let(:activity) do
       described_class.new.tap do |a|
         a.uuid = uuid
-        a.set_sample_id!(uuid)
-        a.set_order_uuid(order_uuid)
-        a.set_sample_container_id!(tube_uuid, "tube")
+        a.order_uuid = order_uuid
+        a.set_sample_container_uuid!(tube_uuid, "tube")
         a.process = process
         a.step = step
         a.user = created_by
@@ -51,11 +50,6 @@ module Lims::WarehouseBuilder
     context "save activity" do
       it "saves the activity" do
         expect { activity.save }.to change { db[model.to_sym].count }.by(1)
-      end
-
-      it "sets the order id" do
-        activity_id = activity.save.internal_id
-        db[model.to_sym].where(:internal_id => activity_id).first[:order_id].should == current_order_id 
       end
 
       it "sets the hashed index" do

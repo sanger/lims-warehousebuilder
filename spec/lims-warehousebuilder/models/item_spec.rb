@@ -1,7 +1,7 @@
 require 'lims-warehousebuilder/models/spec_helper'
 
 module Lims::WarehouseBuilder
-  describe Model::Item do
+  describe "Model::Item" do
     include_context "use database"
     include_context "timecop"
 
@@ -15,18 +15,18 @@ module Lims::WarehouseBuilder
     let(:order_uuid) { "11111111-2222-3333-4444-666666666666" }
 
     let(:object) do 
-      described_class.new.tap do |s|
+      Model.model_for("item").new.tap do |s|
         s.uuid = uuid
+        s.order_uuid = order_uuid
         s.role = role
         s.batch_uuid = batch_uuid
         s.status = status
         s.created_at = created_at
         s.created_by = created_by
-        s.set_order_uuid(order_uuid)
       end
     end
 
-    let!(:order) { Model::Order.new(:uuid => order_uuid).save }
+    let!(:order) { Model.model_for("order").new(:uuid => order_uuid).save }
 
     let(:updated_object) do
       Model.clone_model_object(object).tap do |s|
@@ -43,7 +43,7 @@ module Lims::WarehouseBuilder
         end
 
         it "gets back the item by uuid" do
-          item = described_class.item_by_uuid(uuid)
+          item = Model.model_for("item").item_by_uuid(uuid)
           item.should be_a(Model::Item)
           (item.values - [:internal_id]).should == (object.values - [:internal_id])
         end
@@ -52,7 +52,7 @@ module Lims::WarehouseBuilder
       context "invalid" do
         it "raises a NotFound error for unkown sanger barcode" do
           expect do
-            described_class.item_by_uuid(uuid)
+            Model.model_for("item").item_by_uuid(uuid)
           end.to raise_error(Model::NotFound)
         end
       end
