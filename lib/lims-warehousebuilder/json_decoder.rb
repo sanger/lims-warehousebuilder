@@ -49,7 +49,13 @@ module Lims::WarehouseBuilder
 
           # Handle usual s2_resource: :tube => {tube payload}
           # and nested s2 resource with indirect key: :tubes => {"A1" => {tube payload}, "A2" => ...}
-          model = is_s2_resource_name?(key) ? key : (is_s2_resource_name?(singular_key) ? singular_key : model)
+          # model passed in parameter of the method is used only when the key is a location.
+          model = case 
+                  when is_s2_resource_name?(key) then key
+                  when is_s2_resource_name?(singular_key) then singular_key
+                  when is_a_location_key?(key) then model
+                  else nil
+                  end
 
           if is_s2_resource?(model, value)
             value = complete_value(value, payload, payload_ancestor)
@@ -67,6 +73,7 @@ module Lims::WarehouseBuilder
             # we just call the decoder and stop the loop after. It is used only for specific
             # payload like swap samples for which we need the full message payload to be
             # able to update correctly the warehouse.
+            value = complete_value(value, payload, payload_ancestor)
             block.call(key, value)
             break
           end
@@ -126,6 +133,13 @@ module Lims::WarehouseBuilder
       # model in the warehouse. For example: labellable.
       def self.is_s2_resource_name?(name)
         (ResourceTools::Database::S2_MODELS | NameToDecoder.keys - ["json"]).include?(name)
+      end
+
+      # @param [String] name
+      # @return [Bool]
+      # Return true if 'name' is a location like "A1", "E10"...
+      def self.is_a_location_key?(name)
+        name =~ /^[a-zA-Z][0-9]+$/
       end
 
       # @param [String] name
