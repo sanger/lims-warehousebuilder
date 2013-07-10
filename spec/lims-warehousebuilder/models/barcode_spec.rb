@@ -12,7 +12,8 @@ module Lims::WarehouseBuilder
     let(:ean13_barcode) { "ean13_barcode" }
     let(:sanger_barcode) { "sanger_barcode" }
     let(:barcoded_resource_uuid) { "11111111-2222-3333-4444-666666666666" }
-    let(:position) { "position" }
+    let(:ean13_barcode_position) { "position ean13" }
+    let(:sanger_barcode_position) { "position sanger" }
 
     let(:object) do 
       described_class.new.tap do |s|
@@ -27,7 +28,8 @@ module Lims::WarehouseBuilder
     let(:updated_object) do
       Model.clone_model_object(object).tap do |s|
         s.barcoded_resource_uuid = barcoded_resource_uuid
-        s.position = position
+        s.ean13_barcode_position = ean13_barcode_position
+        s.sanger_barcode_position = sanger_barcode_position
       end
     end
 

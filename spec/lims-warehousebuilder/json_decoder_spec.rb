@@ -32,11 +32,5 @@ module Lims::WarehouseBuilder::Decoder
         described_class.decoder_for("swap_samples").should == SwapSamplesDecoder
       end
     end
-
-    context "map attributes to a model" do
-      let(:model) { Model::Tube.new }
-      let(:mapped_model) { described_class.new.map_attributes_to_model(model, payload) }
-      pending    
-    end
   end
 end

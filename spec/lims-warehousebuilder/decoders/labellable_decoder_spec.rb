@@ -39,7 +39,7 @@ module Lims::WarehouseBuilder::Decoder
     let(:models) { decoder.call }
 
     it "returns an array of Barcode objects" do
-      models.size.should == 2 
+      models.size.should == 1 
       models.each do |model|
         model.should be_a(Lims::WarehouseBuilder::Model::Barcode)
       end
