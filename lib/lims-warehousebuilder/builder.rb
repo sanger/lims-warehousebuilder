@@ -59,7 +59,7 @@ module Lims
               save_all(objects)
               metadata.ack
               log.info("Message processed and acknowledged")
-            rescue MessageToBeRequeued => e
+            rescue Sequel::Rollback, MessageToBeRequeued => e
               metadata.reject(:requeue => true)
               log.info("Message requeued: #{e}")
             rescue ProcessingFailed => ex
@@ -104,13 +104,15 @@ module Lims
 
       # @param [Array] objects
       def save_all(objects)
-        objects.each do |o|
-          begin
-            next unless o
-            o.save
-          rescue Sequel::HookFailed => e
-            # if the model's before_save method fails
-            log.error("Exception raised: #{e}")
+        DB.transaction(:rollback => :reraise) do
+          objects.each do |o|
+            begin
+              next unless o
+              o.save
+            rescue Sequel::HookFailed => e
+              # if the model's before_save method fails
+              log.error("Exception raised: #{e}")
+            end
           end
         end
       end
