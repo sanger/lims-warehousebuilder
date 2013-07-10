@@ -63,7 +63,7 @@ module Lims::WarehouseBuilder
         result[1].container_uuid.should == tube2_uuid
       end
 
-      it "returns sample management activity models", :focus => true do
+      it "returns sample management activity models" do
         result[2].should be_a(Model::SampleManagementActivity)
         result[2].uuid.should == sample2_uuid
         result[2].tube_uuid.should == tube1_uuid
@@ -71,6 +71,17 @@ module Lims::WarehouseBuilder
         result[3].uuid.should == sample1_uuid
         result[3].tube_uuid.should == tube2_uuid
       end
+    end
+
+    context "foreach_s2_resource" do
+      let(:payload) do
+        {"swap_samples" => {}}
+      end
+
+      let(:expected_mandatory_keys) { ["date", "user", "action"] }
+      let(:expected_resources) { ["swap_samples"] }
+
+      it_behaves_like "decoding resources"
     end
   end
 end
