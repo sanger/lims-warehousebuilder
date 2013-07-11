@@ -10,6 +10,7 @@ module Lims::WarehouseBuilder
     class SampleContainerHelper < Sequel::Model(:sample_container_helper)
       
       def before_save
+        super
         self.class.where(values).count == 0
       end
 
@@ -24,6 +25,13 @@ module Lims::WarehouseBuilder
             :container_model => r.container_model
           }
         end
+      end
+
+      # @param [String] container_uuid
+      # @param [Array] sample_uuids
+      # @return [Array]
+      def self.helpers_by_container_and_sample_uuids(container_uuids, sample_uuids)
+        self.where(:container_uuid => container_uuids, :sample_uuid => sample_uuids).all
       end
     end
   end

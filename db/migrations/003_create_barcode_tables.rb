@@ -4,11 +4,14 @@ Sequel.migration do
       primary_key :internal_id
       String :uuid, :fixed => true, :size => 64
       String :ean13_barcode
+      String :ean13_barcode_position
       String :sanger_barcode
+      String :sanger_barcode_position
       String :barcoded_resource_uuid
-      String :position
       DateTime :created_at
+      DateTime :updated_at
       String :created_by
+      String :updated_by
       index :ean13_barcode
       index :sanger_barcode
     end
@@ -17,11 +20,14 @@ Sequel.migration do
       primary_key :internal_id
       String :uuid, :fixed => true, :size => 64
       String :ean13_barcode
+      String :ean13_barcode_position
       String :sanger_barcode
+      String :sanger_barcode_position
       String :barcoded_resource_uuid
-      String :position
       DateTime :created_at
+      DateTime :updated_at
       String :created_by
+      String :updated_by
     end
   end
 

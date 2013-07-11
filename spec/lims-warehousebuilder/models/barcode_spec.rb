@@ -1,22 +1,22 @@
 require 'lims-warehousebuilder/models/spec_helper'
 
 module Lims::WarehouseBuilder
-  describe "Barcode" do
+  describe Model::Barcode do
     include_context "use database"
+    include_context "timecop"
 
     let(:model) { "barcode" }
-    let(:historic_table) { "historic_barcodes" }
-    let(:current_table) { "current_barcodes" }
     let(:uuid) { "11111111-2222-3333-4444-555555555555" }
     let(:created_at) { Time.now.utc }
     let(:created_by) { "username" }
     let(:ean13_barcode) { "ean13_barcode" }
     let(:sanger_barcode) { "sanger_barcode" }
     let(:barcoded_resource_uuid) { "11111111-2222-3333-4444-666666666666" }
-    let(:position) { "position" }
+    let(:ean13_barcode_position) { "position ean13" }
+    let(:sanger_barcode_position) { "position sanger" }
 
     let(:object) do 
-      @model.tap do |s|
+      described_class.new.tap do |s|
         s.uuid = uuid
         s.ean13_barcode = ean13_barcode
         s.sanger_barcode = sanger_barcode
@@ -26,9 +26,10 @@ module Lims::WarehouseBuilder
     end
 
     let(:updated_object) do
-      @model_helper.clone_model_object(object).tap do |s|
+      Model.clone_model_object(object).tap do |s|
         s.barcoded_resource_uuid = barcoded_resource_uuid
-        s.position = position
+        s.ean13_barcode_position = ean13_barcode_position
+        s.sanger_barcode_position = sanger_barcode_position
       end
     end
 
@@ -37,32 +38,36 @@ module Lims::WarehouseBuilder
     context "barcode accessors" do
       context "valid" do
         before do
-          Model::Barcode.new({:uuid => uuid, :sanger_barcode => sanger_barcode, :ean13_barcode => ean13_barcode}).save
+          object.save
         end
 
         it "gets back the barcode by sanger barcode" do
-          Model::Barcode.barcode_by_sanger_barcode(sanger_barcode).should be_a(Model::Barcode)
+          barcode = described_class.barcode_by_sanger_barcode(sanger_barcode)
+          barcode.should be_a(Model::Barcode)
+          (barcode.values - [:internal_id]).should == (object.values - [:internal_id])
         end
 
         it "gets back the barcode by ean13 barcode" do
-          Model::Barcode.barcode_by_ean13_barcode(ean13_barcode).should be_a(Model::Barcode)
+          barcode = described_class.barcode_by_ean13_barcode(ean13_barcode)
+          barcode.should be_a(Model::Barcode)
+          (barcode.values - [:internal_id]).should == (object.values - [:internal_id])
         end
       end
 
       context "invalid" do
         before do
-          Model::Barcode.new({:uuid => uuid, :sanger_barcode => "dummy", :ean13_barcode => "dummy"}).save
+          described_class.new({:uuid => uuid, :sanger_barcode => "dummy", :ean13_barcode => "dummy"}).save
         end
 
         it "raises a NotFound error for unkown sanger barcode" do
           expect do
-            Model::Barcode.barcode_by_sanger_barcode(sanger_barcode)
+            described_class.barcode_by_sanger_barcode(sanger_barcode)
           end.to raise_error(Model::NotFound)
         end
 
         it "raises a NotFound error for unknown ean13_barcode" do
           expect do
-            Model::Barcode.barcode_by_ean13_barcode(ean13_barcode)
+            described_class.barcode_by_ean13_barcode(ean13_barcode)
           end.to raise_error(Model::NotFound)
         end
       end

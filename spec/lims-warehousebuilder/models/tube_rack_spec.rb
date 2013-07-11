@@ -1,13 +1,12 @@
 require 'lims-warehousebuilder/models/spec_helper'
 
 module Lims::WarehouseBuilder
-  describe Model::Sample do
+  describe "Model::TubeRack" do
     include_context "use database"
     include_context "timecop"
 
-    let(:model) { "sample" }
+    let(:model) { "tube_rack" }
     let(:uuid) { "11111111-2222-3333-4444-555555555555" }
-    let(:name) { "sample 0" }
     let(:created_at) { Time.now.utc }
     let(:created_by) { "username" }
 
@@ -24,17 +23,5 @@ module Lims::WarehouseBuilder
     end
 
     it_behaves_like "a warehouse model"
-
-    it "returns a sample given its uuid" do
-      object.save
-      described_class.sample_by_uuid(uuid).should be_a(Model::Sample)
-      (described_class.sample_by_uuid(uuid).values - [:internal_id]).should == (object.values - [:internal_id]) 
-    end
-
-    it "raises an error if the sample cannot be found" do
-      expect do
-        described_class.sample_by_uuid(uuid)
-      end.to raise_error(Model::NotFound)
-    end
   end
 end

@@ -29,6 +29,7 @@ module Lims::WarehouseBuilder
 
       # @param [Hash,String] payload
       # @param [Hash] payload_ancestor
+      # @param [String,Nil] model
       # @param [Block] block
       # Iterate over the payload and call the block for each
       # s2 resource found.
@@ -39,32 +40,53 @@ module Lims::WarehouseBuilder
       # @example
       # If we find a sample, we add to its payload the resource
       # which includes the sample, for example a tube and its uuid.
-      def self.foreach_s2_resource(payload, payload_ancestor = {}, &block) 
+      def self.foreach_s2_resource(payload, payload_ancestor = {}, model=nil, &block) 
         payload = payload.is_a?(Hash) ? payload : self.to_hash(payload)
 
         payload.each do |key, value|
-          if is_s2_resource?(key, value)
+          next unless value.is_a?(Hash) || value.is_a?(Array) # Prevent useless loop
+          singular_key = s2_resource_singular(key)
+
+          # Handle usual s2_resource: :tube => {tube payload}
+          # and nested s2 resource with indirect key: :tubes => {"A1" => {tube payload}, "A2" => ...}
+          # model passed in parameter of the method is used only when the key is a location.
+          model = case 
+                  when is_s2_resource_name?(key) then key
+                  when is_s2_resource_name?(singular_key) then singular_key
+                  when is_a_location_key?(key) then model
+                  else nil
+                  end
+
+          if is_s2_resource?(model, value)
             value = complete_value(value, payload, payload_ancestor)
-            payload_ancestor = {:model => key, :uuid => payload[key]["uuid"]}
-            block.call(key, value)
+            payload_ancestor = {:model => model, :uuid => payload[key]["uuid"]}
+            block.call(model, value)
+           
           elsif is_s2_resources_array?(key, value)
-            # Handle the case we have an array of resources like
-            # :samples => [{sample1}, {sample2},...]
-            # The following add the type in front of each resource
-            # in the array. For example: 
-            # :samples => [{:sample => {sample1}, {:sample => {sample2}}, ...]
-            value = value.map { |v| {s2_resource_singular(key) => v} } 
+            # Handle the case we have an array of resources like :samples => [{sample1}, {sample2},...]
+            # The following add the type in front of each resource in the array. For example: 
+            # :samples => [{:sample => {sample1}}, {:sample => {sample2}}, ...]
+            value = value.map { |v| {singular_key => v} } 
+
+          elsif is_a_decoder?(key)
+            # Handle custom decoders like for swap sample. No resource corresponds to <key>, 
+            # we just call the decoder and stop the loop after. It is used only for specific
+            # payload like swap samples for which we need the full message payload to be
+            # able to update correctly the warehouse.
+            value = complete_value(value, payload, payload_ancestor)
+            block.call(key, value)
+            break
           end
 
           case value
           when Hash then 
             value = complete_value(value, payload, payload_ancestor)
-            foreach_s2_resource(value, payload_ancestor, &block)
+            foreach_s2_resource(value, payload_ancestor, model, &block)
           when Array then 
             value.each do |e|
               if e.is_a?(Hash)
                 e = complete_value(e, payload, payload_ancestor)
-                foreach_s2_resource(e, payload_ancestor, &block)
+                foreach_s2_resource(e, payload_ancestor, model, &block)
               end
             end
           end
@@ -73,8 +95,10 @@ module Lims::WarehouseBuilder
 
       # @param [String] name
       # @return [JsonDecoder]
+      # NameToDecoder keys do not include any special characters.
       def self.decoder_for(name)
-        NameToDecoder[name] ? NameToDecoder[name] : NameToDecoder["json"]
+        name_alphanum = name.gsub(/[^0-9a-zA-Z]/, '')
+        NameToDecoder[name_alphanum] ? NameToDecoder[name_alphanum] : NameToDecoder["json"]
       end
 
       # @param [String] json
@@ -112,6 +136,13 @@ module Lims::WarehouseBuilder
       end
 
       # @param [String] name
+      # @return [Bool]
+      # Return true if 'name' is a location like "A1", "E10"...
+      def self.is_a_location_key?(name)
+        name =~ /^[a-zA-Z][0-9]+$/
+      end
+
+      # @param [String] name
       # @param [Hash] content
       # @return [Bool]
       # Return true if the name is a s2 resource name and if the resource has an uuid.
@@ -119,7 +150,14 @@ module Lims::WarehouseBuilder
       # but are not a resource (like in bulk_create_tube, the action parameters are 
       # listed under "tubes").
       def self.is_s2_resource?(name, content)
-        is_s2_resource_name?(name) && content.has_key?("uuid")
+        is_s2_resource_name?(name) && content.is_a?(Hash) && content.has_key?("uuid")
+      end
+
+      # @param [String] name
+      # @return [Bool]
+      def self.is_a_decoder?(name)
+        name_alphanum = name.gsub(/[^0-9a-zA-Z]/, '')
+        (NameToDecoder.keys - ["json"]).include?(name_alphanum)
       end
 
       # @param [String] name
@@ -141,12 +179,35 @@ module Lims::WarehouseBuilder
         [map_attributes_to_model(prepared_model(@payload["uuid"], @model))]
       end
 
+      # Sometimes only the updated_at/by is needed to be
+      # updated but no other attributes are changed.
+      # In that case, we can pass the to_be_saved? validation
+      # settings the force_save parameter to true.
+      # For example, when we update a tube rack just adding a new
+      # tube, none of the tube rack parameters are changed, but we
+      # need to update the date.
+      def force_save!
+        @force_save = true
+      end
+
+      # The force save parameter is used only one time. It is 
+      # resetted to false after it has been consumed by
+      # to_be_saved? validation.
+      def reset_force_save
+        @force_save = false
+      end
+
       # @param [Sequel::Model] model
       # @param [Hash] payload
       # For each attribute of the model, we check if there is a new
       # value in the payload to update it. If nothing is new, we don't
       # need to continue to deal with that model.
       def to_be_saved?(model, payload)
+        if @force_save
+          reset_force_save
+          return true
+        end
+
         # Case a requeued messages arrived, its date is older than
         # the last info we have, then we don't store it.
         message_date = DateTime.parse(payload["date"]).to_time.utc
@@ -154,9 +215,10 @@ module Lims::WarehouseBuilder
 
         attributes = model.columns - model.class.ignoreable - [model.primary_key]
         attributes.each do |attribute|
+          model_value = model.send(attribute)
           payload_key = model.class.translations.inverse[attribute] || attribute.to_s 
           # There is at least one new attribute which needs to be saved
-          return true if attribute != seek(payload, payload_key)
+          return true if model_value != seek(payload, payload_key)
         end
         false
       end
