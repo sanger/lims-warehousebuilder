@@ -1,9 +1,8 @@
 module Lims::WarehouseBuilder
   module TableMigration
 
-    # @param [Sequel::Model] object_class
-    def maintain_warehouse_for(object_class)
-      maintain_currency_triggers(object_class.table_name, object_class.columns)
+    def maintain_warehouse_for(table, columns)
+      maintain_currency_triggers(table, columns)
     end
 
     private
