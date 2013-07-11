@@ -3,13 +3,6 @@ require 'lims-warehousebuilder/table_migration'
 module Lims::WarehouseBuilder
   module Model
     module Common
-      include TableMigration
-
-      def before_save
-        super
-        maintain_warehouse_for(self.class)
-      end
-
       # The attribute created_at can be set only one time.
       # The other time, when we try to set a new value in
       # created_at, it is actually set in updated_at.
