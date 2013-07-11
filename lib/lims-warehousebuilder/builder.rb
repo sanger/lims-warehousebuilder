@@ -56,6 +56,7 @@ module Lims
             begin
               action = metadata.routing_key.match(/^[\w\.]*\.(\w*)$/)[1]
               objects = decode_payload(payload, action)
+              maintain_warehouse(objects)
               save_all(objects)
               metadata.ack
               log.info("Message processed and acknowledged")
@@ -114,6 +115,20 @@ module Lims
               log.error("Exception raised: #{e}")
             end
           end
+        end
+      end
+
+      # @param [Array<Sequel::Model>] objects
+      # Setup the triggers in the warehouse for each model involved
+      def maintain_warehouse(objects)
+        {}.tap do |tables|
+          objects.each do |o|
+            klass = o.class
+            next unless klass.ancestors.include?(Lims::WarehouseBuilder::Model::Common)
+            tables[klass.table_name] = klass.columns
+          end
+        end.each do |table_name, columns|
+          maintain_warehouse_for(table_name, columns)
         end
       end
     end
