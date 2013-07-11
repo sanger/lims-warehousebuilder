@@ -2,12 +2,11 @@ require 'lims-warehousebuilder/spec_helper'
 require 'lims-warehousebuilder/model'
 
 module Lims::WarehouseBuilder
+
   shared_examples_for "a warehouse model" do
 
-    before(:each) do
-      @model_helper = Object.new.extend(Model)
-      @model = @model_helper.model_for(model).new
-    end
+    let(:historic_table) { "historic_#{model}s" }
+    let(:current_table) { "current_#{model}s" }
 
     context "new object" do
       it "saves the object in the historic table" do
@@ -30,6 +29,12 @@ module Lims::WarehouseBuilder
 
       it "replaces the object by the updated object in the current table" do
         expect { updated_object.save }.to change { db[current_table.to_sym].count }.by(0) 
+      end
+
+      it "does not replace the internal_id in the current table" do
+        old_id = db[current_table.to_sym].where(:uuid => object.uuid)
+        updated_object.save
+        db[current_table.to_sym].where(:uuid => object.uuid).should == old_id
       end
     end
   end

@@ -6,9 +6,6 @@ module Lims::WarehouseBuilder
 
       private
 
-      # The order needs to be in the first position in the 
-      # returned array as sample_management_activity needs it
-      # to be saved first to get its internal_id.
       def _call(options)
         order = super
         [order, items, sample_management_activity]
@@ -30,13 +27,13 @@ module Lims::WarehouseBuilder
 
               item = prepared_model(item_uuid, "item").tap do |i|
                 i.uuid = item_uuid
+                i.order_uuid = order_uuid
                 i.role = role
                 i.batch_uuid = batch_uuid
                 i.status = status
                 i.created_at = date
                 i.created_by = user
               end
-              item.set_order_uuid(order_uuid)
               items << item
             end
           end
@@ -64,15 +61,14 @@ module Lims::WarehouseBuilder
                   samples_info.each do |sample_info|
                     activity = klass.new({
                       :uuid => sample_info[:sample_uuid],
+                      :order_uuid => order_uuid,
                       :process => process,
                       :step => role,
                       :user => user,
                       :current_from => date,
                       :status => status
                     })
-                    activity.set_sample_id!(sample_info[:sample_uuid])
-                    activity.set_sample_container_id!(sample_info[:container_uuid], sample_info[:container_model])
-                    activity.set_order_uuid(order_uuid)
+                    activity.set_sample_container_uuid!(sample_info[:container_uuid], sample_info[:container_model])
                     activities << activity 
                   end
                 end

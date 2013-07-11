@@ -6,6 +6,7 @@ module Lims
   module WarehouseBuilder
 
     MessageToBeRequeued = Class.new(StandardError)
+    ProcessingFailed = Class.new(StandardError)
 
     class Builder
       include Lims::BusClient::Consumer
@@ -18,9 +19,9 @@ module Lims
         '*.*.order.*',
         '*.*.tube.*', '*.*.bulkcreatetube.*',
         '*.*.spincolumn.*',
-        '*.*.tuberack.*',
+        '*.*.tuberack.*', '*.*.tuberackmove.*',
         '*.*.transfertubestotubes.*',
-        '*.*.sample.*', '*.*.bulkcreatesample.*', 
+        '*.*.sample.*', '*.*.bulkcreatesample.*', '*.*.swapsamples.*', 
         '*.*.bulkupdatesample.*', '*.*.bulkdeletesample.*',
         '*.*.barcode.create', '*.*.bulkcreatebarcode.*',
         '*.*.labellable.create', '*.*.bulkcreatelabellable.*'
@@ -55,13 +56,14 @@ module Lims
             begin
               action = metadata.routing_key.match(/^[\w\.]*\.(\w*)$/)[1]
               objects = decode_payload(payload, action)
-              save(objects)
+              maintain_warehouse(objects)
+              save_all(objects)
               metadata.ack
               log.info("Message processed and acknowledged")
-            rescue MessageToBeRequeued => e
+            rescue Sequel::Rollback, MessageToBeRequeued => e
               metadata.reject(:requeue => true)
               log.info("Message requeued: #{e}")
-            rescue Model::ProcessingFailed => ex
+            rescue ProcessingFailed => ex
               # TODO: use the dead lettering queue
               metadata.reject
               log.error("Processing the message '#{metadata.routing_key}' failed with: #{ex.to_s}")
@@ -102,14 +104,31 @@ module Lims
       end
 
       # @param [Array] objects
-      def save(objects)
-        objects.each do |o|
-          begin
-            o.save if o
-          rescue Sequel::HookFailed => e
-            # if the model's before_save method fails
-            log.error("Exception raised: #{e}")
+      def save_all(objects)
+        DB.transaction(:rollback => :reraise) do
+          objects.each do |o|
+            begin
+              next unless o
+              o.save
+            rescue Sequel::HookFailed => e
+              # if the model's before_save method fails
+              log.error("Exception raised: #{e}")
+            end
           end
+        end
+      end
+
+      # @param [Array<Sequel::Model>] objects
+      # Setup the triggers in the warehouse for each model involved
+      def maintain_warehouse(objects)
+        {}.tap do |tables|
+          objects.each do |o|
+            klass = o.class
+            next unless klass.ancestors.include?(Lims::WarehouseBuilder::Model::Common)
+            tables[klass.table_name] = klass.columns
+          end
+        end.each do |table_name, columns|
+          maintain_warehouse_for(table_name, columns)
         end
       end
     end

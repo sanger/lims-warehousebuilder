@@ -2,13 +2,12 @@ Sequel.migration do
   change do
     create_table :sample_management_activity do
       primary_key :internal_id
-      foreign_key :sample_id, :current_samples, :key => :internal_id 
-      foreign_key :order_id, :current_orders, :key => :internal_id 
-      String :uuid, :fixed => true, :size => 64
+      String :uuid, :fixed => true, :size => 64 
+      String :order_uuid, :fixed => true, :size => 64 
       String :process
       String :step
-      foreign_key :tube_id, :current_tubes, :key => :internal_id
-      foreign_key :spin_column_id, :current_spin_columns, :key => :internal_id
+      String :tube_uuid, :fixed => true, :size => 64 
+      String :spin_column_uuid, :fixed => true, :size => 64 
       String :user
       String :status
       DateTime :date
@@ -16,7 +15,7 @@ Sequel.migration do
       String :hashed_index
 
       index :hashed_index
-      index [:sample_id, :order_id]
+      index [:uuid, :order_uuid]
     end
   end
 end

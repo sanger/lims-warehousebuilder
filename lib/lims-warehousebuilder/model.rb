@@ -33,7 +33,7 @@ module Lims::WarehouseBuilder
     # @return [Sequel::Model]
     # Lookup in the database for the model type corresponding 
     # to the uuid in parameter.
-    def self.model_for_uuid(uuid, modelname)
+    def self.model_by_uuid(uuid, modelname)
       model = model_for(modelname)
       result = model.from(model.current_table_name).where(:uuid => uuid).first
       raise NotFound, "#{modelname} #{uuid} not found" unless result
@@ -49,7 +49,7 @@ module Lims::WarehouseBuilder
     # existing model.
     def prepared_model(uuid, modelname)
       begin
-        model = Model.model_for_uuid(uuid, modelname)
+        model = Model.model_by_uuid(uuid, modelname)
         model.class.new(model.values - [model.primary_key])
       rescue NotFound
         Model.model_for(modelname).new
@@ -71,6 +71,10 @@ module Lims::WarehouseBuilder
           class #{class_name} < Sequel::Model(:historic_#{name}s)
             include ResourceTools::Mapping
             include Common
+
+            def self.#{name}_by_uuid(uuid)
+              Model.model_by_uuid(uuid, "#{name}") 
+            end
           end
       }
       Model.const_get(class_name)

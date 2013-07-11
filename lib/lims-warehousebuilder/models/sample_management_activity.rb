@@ -6,36 +6,17 @@ module Lims::WarehouseBuilder
 
       def before_save
         super
-        set_order_id! if @order_uuid
         set_hashed_index!
         return false if has_duplicate?
         set_previous_activity_current_to!
       end
 
-      # @param [String] sample_uuid
-      def set_sample_id!(sample_uuid)
-        sample = Model.model_for_uuid(sample_uuid, "sample")
-        self.sample_id = sample.internal_id
-      end
-
-      # @param [String] order_uuid
-      # Order and Activity come from a same message. So the first
-      # time an order message is received, we decode the order
-      # and the corresponding activities, BUT the order is not yet
-      # stored in the database. That's why the order_id is set 
-      # in the before_save filter, once the order is previously 
-      # saved (as it's returned in first position by OrderDecoder#_call).
-      def set_order_uuid(order_uuid)
-        @order_uuid = order_uuid
-      end
-
       # @param [String] container_uuid
       # @param [String] modelname
-      def set_sample_container_id!(container_uuid, modelname)
-        container = Model.model_for_uuid(container_uuid, modelname)
-        container_field = "#{modelname}_id="
+      def set_sample_container_uuid!(container_uuid, modelname)
+        container_field = "#{modelname}_uuid="
         if self.respond_to?(container_field)
-          self.send("#{modelname}_id=", container.internal_id)
+          self.send("#{modelname}_uuid=", container_uuid)
         else
           raise DBSchemaError, "#{container_field} column cannot be found in sample_management_activity table"
         end
@@ -50,31 +31,26 @@ module Lims::WarehouseBuilder
       # activity starts to be current.
       def set_previous_activity_current_to!
         self.class.dataset.where({
-          :sample_id => sample_id,
-          :order_id => order_id,
+          :uuid => uuid,
+          :order_uuid => order_uuid,
           :step => step,
           :current_to => nil
         }).update(:current_to => current_from)
       end
 
-      def set_order_id!
-        order = Model.model_for_uuid(@order_uuid, "order")
-        self.order_id = order.internal_id
-      end
-
       # Compute a unique representation of the activity and store
-      # it in hashed_index. The hash is computed from sample_id, order_id,
-      # process, step, status, resource_id (either tube_id or spin_column_id)
+      # it in hashed_index. The hash is computed from uuid, order_uuid,
+      # process, step, status, resource_uuid (either tube_uuid or spin_column_uuid)
       # and the resource_type (either tube or spin_column)
       # TODO: make resource_id and resource_type generic. What if a new labware column is added?
       # need to update this method...
       # Also, if another activity instance has the same hashed_index, we can assume
       # it represents the same activity.
       def set_hashed_index!
-        resource_id = tube_id ? tube_id : spin_column_id
-        resource_type = tube_id ? "tube" : "spin_column"
-        value = [sample_id, order_id, process, step, status, resource_id, resource_type].join
-        self.hashed_index = Digest::MD5.hexdigest(value)        
+        resource_uuid = tube_uuid ? tube_uuid : spin_column_uuid
+        resource_type = tube_uuid ? "tube" : "spin_column"
+        value = [uuid, order_uuid, process, step, status, resource_uuid, resource_type].join
+        self.hashed_index = Digest::MD5.hexdigest(value)
       end
 
       # @return [Bool]

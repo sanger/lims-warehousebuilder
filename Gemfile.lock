@@ -41,7 +41,7 @@ GIT
 PATH
   remote: .
   specs:
-    lims-warehousebuilder (0.6.0)
+    lims-warehousebuilder (0.8.0)
       aequitas
       amqp
       facets
@@ -104,6 +104,7 @@ GEM
       rack (>= 1.0)
     state_machine (1.2.0)
     systemu (2.5.2)
+    timecop (0.6.1)
     uuid (2.3.7)
       macaddr (~> 1.0)
     virtus (0.2.0)
@@ -124,5 +125,6 @@ DEPENDENCIES
   psd_logger!
   rspec (~> 2.8.0)
   shotgun
+  timecop
   yard (>= 0.7.0)
   yard-rspec (= 0.1)
