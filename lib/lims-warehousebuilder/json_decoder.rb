@@ -46,6 +46,7 @@ module Lims::WarehouseBuilder
         payload.each do |key, value|
           next unless value.is_a?(Hash) || value.is_a?(Array) # Prevent useless loop
           singular_key = s2_resource_singular(key)
+          local_payload_ancestor = payload_ancestor.clone
 
           # Handle usual s2_resource: :tube => {tube payload}
           # and nested s2 resource with indirect key: :tubes => {"A1" => {tube payload}, "A2" => ...}
@@ -58,8 +59,9 @@ module Lims::WarehouseBuilder
                   end
 
           if is_s2_resource?(model, value)
-            value = complete_value(value, payload, payload_ancestor)
-            payload_ancestor = {:model => model, :uuid => payload[key]["uuid"]}
+            location = is_a_location_key?(key) ? key : nil
+            value = complete_value(value, payload, payload_ancestor.merge(:location => location))
+            local_payload_ancestor = {:ancestor_type => model, :ancestor_uuid => payload[key]["uuid"]}
             block.call(model, value)
            
           elsif is_s2_resources_array?(key, value)
@@ -80,13 +82,13 @@ module Lims::WarehouseBuilder
 
           case value
           when Hash then 
-            value = complete_value(value, payload, payload_ancestor)
-            foreach_s2_resource(value, payload_ancestor, model, &block)
+            value = complete_value(value, payload, local_payload_ancestor)
+            foreach_s2_resource(value, local_payload_ancestor, model, &block)
           when Array then 
             value.each do |e|
               if e.is_a?(Hash)
-                e = complete_value(e, payload, payload_ancestor)
-                foreach_s2_resource(e, payload_ancestor, model, &block)
+                e = complete_value(e, payload, local_payload_ancestor)
+                foreach_s2_resource(e, local_payload_ancestor, model, &block)
               end
             end
           end
@@ -118,8 +120,10 @@ module Lims::WarehouseBuilder
       # of nested resource.
       def self.complete_value(value, payload, payload_ancestor)
         value.tap do |v|
-          v["ancestor_type"] = payload_ancestor[:model] if payload_ancestor[:model]
-          v["ancestor_uuid"] = payload_ancestor[:uuid] if payload_ancestor[:uuid]
+          payload_ancestor.each do |attribute, data|
+            v[attribute.to_s] = data
+          end
+
           SHARED_ATTRIBUTES.each do |attr|
             v[attr] = payload[attr]
           end
