@@ -9,7 +9,7 @@ module Lims::WarehouseBuilder::Decoder
       end
 
       it "gets the right decoder for tube" do
-        described_class.decoder_for("tube").should == JsonDecoder
+        described_class.decoder_for("tube").should == TubeDecoder
       end
 
       it "gets the right decoder for order" do
