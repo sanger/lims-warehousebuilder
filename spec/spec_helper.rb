@@ -2,10 +2,19 @@ ENV["LIMS_WAREHOUSEBUILDER_ENV"] = "test" unless defined?(ENV["LIMS_WAREHOUSEBUI
 require 'yaml'
 require 'timecop'
 require 'sequel'
+require 'lims-warehousebuilder/table_migration'
+require 'lims-warehousebuilder/model'
 
 def connect_db(env)
   config = YAML.load_file(File.join('config', 'database.yml'))
   Sequel.connect(config[env.to_s])
+end
+
+# Triggers setup
+Lims::WarehouseBuilder::Model::NameToSequel.each do |_, klass|
+  next unless klass.ancestors.include?(Lims::WarehouseBuilder::Model::Common)
+  migration = Class.new { include Lims::WarehouseBuilder::TableMigration }.new
+  migration.maintain_warehouse_for(klass.table_name, klass.columns)  
 end
 
 shared_context 'use database' do
