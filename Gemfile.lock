@@ -41,7 +41,7 @@ GIT
 PATH
   remote: .
   specs:
-    lims-warehousebuilder (0.9.0)
+    lims-warehousebuilder (0.9.1)
       aequitas
       amqp
       facets
@@ -88,7 +88,7 @@ GEM
     facets (2.9.3)
     macaddr (1.6.1)
       systemu (~> 2.5.0)
-    mysql2 (0.3.11)
+    mysql2 (0.3.13)
     rack (1.5.2)
     rake (10.1.0)
     rspec (2.8.0)
