@@ -1,0 +1,12 @@
+rvm:
+  - 1.9.3
+before_install: gem install bundler
+install: bundle install --without debugger
+env:
+  - DB=mysql
+script:
+  - bundle exec rake test:spec
+before_script:
+  - mysql -e 'CREATE DATABASE warehouse_test DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;'
+  - bundle exec sequel -m db/migrations/ -e test config/database.yml
+
