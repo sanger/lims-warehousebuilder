@@ -1,0 +1,10 @@
+rvm:
+  - 1.9.3
+before_install: gem install bundler
+install: bundle install --without debugger
+env:
+  - DB=mysql
+script:
+  - bundle exec rake test:migrate
+  - bundle exec rake test:spec
+
