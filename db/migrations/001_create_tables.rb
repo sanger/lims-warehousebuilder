@@ -1,39 +1,5 @@
-DNA_RNA_MANUAL_EXTRACTION_ROLES = ["manual_dna_and_rna_input_tube_nap",
-                                   "manual_dna_and_rna_binding_input_tube_nap",
-                                   "manual_spin_column_dna",
-                                   "manual_dna_and_rna_byproduct_tube_rnap",
-                                   "manual_extracted_tube_dna",
-                                   "manual_dna_and_rna_binding_input_tube_rnap",
-                                   "manual_spin_column_rna",
-                                   "manual_extracted_tube_rna",
-                                   "manual_name_rna",
-                                   "manual_name_dna",
-                                   "manual_stock_rna",
-                                   "manual_stock_dna"]
-# TODO: add cancelled and failed
-ORDER_ITEM_STATUS = ["pending", "in_progress", "done", "unused"]
-
 Sequel.migration do
   up do
-
-    # sample_management_activity
-    [:current_sample_management_activity, :historic_sample_management_activity].each do |table|
-      sequel = "create_table :#{table} do;".tap do |s|
-        s << "primary_key :internal_id;"
-        s << "String :uuid, :fixed => true, :size => 64;"
-        DNA_RNA_MANUAL_EXTRACTION_ROLES.each do |role|
-          s << "String :#{role}_uuid, :fixed => true, :size => 64;"
-          ORDER_ITEM_STATUS.each do |status|
-            s << "String :#{role}_#{status}_by;"
-            s << "DateTime :#{role}_#{status}_at;"
-          end
-        end
-        s << "index :uuid;" if table.to_s == "current_sample_management_activity"
-        s << "end"
-      end
-      self.instance_eval(sequel)
-    end
-
     # tubes
     create_table :current_tubes do
       primary_key :internal_id
@@ -153,23 +119,26 @@ Sequel.migration do
     # items
     create_table :current_items do
       primary_key :internal_id
+      String :order_uuid, :fixed => true, :size => 64 
+      String :role
       String :uuid, :fixed => true, :size => 64
       String :batch_uuid, :fixed => true, :size => 64
       String :status
-      String :role
       DateTime :created_at
       DateTime :updated_at
       String :created_by
       String :updated_by
       index :uuid
+      index :order_uuid
     end
 
     create_table :historic_items do
       primary_key :internal_id
+      String :order_uuid, :fixed => true, :size => 64 
+      String :role
       String :uuid, :fixed => true, :size => 64
       String :batch_uuid, :fixed => true, :size => 64
       String :status
-      String :role
       DateTime :created_at
       DateTime :updated_at
       String :created_by
@@ -185,10 +154,7 @@ Sequel.migration do
     end
  end
 
-
   down do
-    drop_table :current_sample_management_activity
-    drop_table :historic_sample_management_activity
     drop_table :current_tubes
     drop_table :historic_tubes
     drop_table :current_tube_racks

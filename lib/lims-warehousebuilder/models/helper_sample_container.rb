@@ -7,26 +7,32 @@ module Lims::WarehouseBuilder
     # association sample_uuid resource_uuid in the table 
     # sample_container_helper. Then, when we receive an order message,
     # we can get the sample uuid from the item uuid using this table. 
-    # And then, use the sample uuid to get back the right row in 
-    # sample_management_activity table.
     class SampleContainerHelper < Sequel::Model(:sample_container_helper)
       
       def before_save
+        super
         self.class.where(values).count == 0
       end
 
-      # @param [String] uuid
-      # @return [Array<String>]
-      def self.sample_uuids_by_container_uuid(uuid)
-        row = self.where(:container_uuid => uuid).select(:sample_uuid).all
-        unless row.empty?
-          row.map { |r| r.sample_uuid }
-        else
-          raise NotFound, "no sample uuid found for container #{uuid}"
+      # @param [String] item_uuid
+      # @return [Array]
+      def self.samples_info_by_item_uuid(item_uuid)
+        rows = self.where(:container_uuid => item_uuid).all
+        rows.map do |r|
+          {
+            :sample_uuid => r.sample_uuid, 
+            :container_uuid => r.container_uuid, 
+            :container_model => r.container_model
+          }
         end
       end
 
+      # @param [String] container_uuid
+      # @param [Array] sample_uuids
+      # @return [Array]
+      def self.helpers_by_container_and_sample_uuids(container_uuids, sample_uuids)
+        self.where(:container_uuid => container_uuids, :sample_uuid => sample_uuids).all
+      end
     end
   end
 end
-

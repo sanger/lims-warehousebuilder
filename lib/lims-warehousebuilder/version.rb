@@ -1,5 +1,5 @@
 module Lims
   module WarehouseBuilder
-    VERSION = "0.3.1"
+    VERSION = "0.9.2"
   end
 end

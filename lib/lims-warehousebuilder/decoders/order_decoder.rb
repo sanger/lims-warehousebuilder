@@ -6,64 +6,78 @@ module Lims::WarehouseBuilder
 
       private
 
-      def _call
+      def _call(options)
         order = super
         [order, items, sample_management_activity]
       end
 
-      # @return [Array<Model::Item>]
+      
       def items
-      # TODO: items doesn't have uuid, the uuid is the one of the resource
-      # The nuple (uuid, order_id, role) is unique, uuid alone is not ie a same resource
-      # can appear under different role in a same order.
-      #  items = []
-      #  @payload["items"].each do |role, items_array|
-      #    items_array.each do |item|
-      #      model = prepared_model(item["uuid"], "item")
-      #      # to set the created_at and created_by from @payload
-      #      payload = self.class.complete_value(item.merge({"role" => role}), @payload, {})
-      #      items << map_attributes_to_model(model, payload)
-      #    end
-      #  end
-      #  items
-        nil
-      end
+        klass = Model.model_for("item")
+        order_uuid = @payload["uuid"]
+        date = @payload["date"]
+        user = @payload["user"]
 
-      # @return [Array<Model::SampleManagementActivity>]
-      def sample_management_activity
-        klass = model_for("sample_management_activity")
-        at = @payload["date"]
-        by = @payload["user"]
-        activities = {}
+        [].tap do |items|
+          @payload["items"].each do |role, items_array|
+            items_array.each do |item|
+              item_uuid = item["uuid"]
+              status = item["status"]
+              batch_uuid = item["batch"]["uuid"] if item["batch"]
 
-        @payload["items"].each do |role, items_array|
-          items_array.each do |item|
-            uuid = item["uuid"]
-            status = item["status"]
-
-            begin
-              # An item is involved in x activies, x being the number
-              # of samples it contains.
-              klass.last_activities_by_order_item_uuid(uuid).each do |activity|
-                # A same activity can be referenced by different items.
-                # Ex: two resources contain the same sample
-                # We use the same activity for both cases.
-                new_activity = activities.fetch(activity.uuid) do |key|
-                  activities[key] = clone_model_object(activity)
-                end
-
-                # We set the new data for the activity and push it in 
-                # memory.
-                new_activity.dispatch_attributes(uuid, role, status, at, by)
-                activities[activity.uuid] = new_activity
+              item = prepared_model(item_uuid, "item").tap do |i|
+                i.uuid = item_uuid
+                i.order_uuid = order_uuid
+                i.role = role
+                i.batch_uuid = batch_uuid
+                i.status = status
+                i.created_at = date
+                i.created_by = user
               end
-            rescue Model::NotFound
-              raise MessageToBeRequeued
+              items << item
             end
           end
         end
+      end
 
-        activities.values
+
+      # @return [Array<Model::SampleManagementActivity>]
+      def sample_management_activity
+        klass = Model.model_for("sample_management_activity")
+        order_uuid = @payload["uuid"]
+        process = @payload["pipeline"]
+        date = @payload["date"]
+        user = @payload["user"]
+
+        [].tap do |activities|
+          @payload["items"].each do |role, items_array|
+            items_array.each do |item|
+              item_uuid = item["uuid"]
+              status = item["status"]
+
+              begin
+                samples_info = SampleContainerHelper.samples_info_by_item_uuid(item_uuid)
+                unless samples_info.empty?
+                  samples_info.each do |sample_info|
+                    activity = klass.new({
+                      :uuid => sample_info[:sample_uuid],
+                      :order_uuid => order_uuid,
+                      :process => process,
+                      :step => role,
+                      :user => user,
+                      :current_from => date,
+                      :status => status
+                    })
+                    activity.set_sample_container_uuid!(sample_info[:container_uuid], sample_info[:container_model])
+                    activities << activity 
+                  end
+                end
+              rescue Model::DBSchemaError, Model::NotFound => e
+                raise MessageToBeRequeued.new(e.message)
+              end
+            end
+          end
+        end
       end
     end
   end
