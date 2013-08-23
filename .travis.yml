@@ -7,4 +7,7 @@ env:
 script:
   - bundle exec rake test:migrate
   - bundle exec rake test:spec
+before_script:
+  - mysql -e 'CREATE DATABASE warehouse_test DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;'
+  - bundle exec sequel -m db/migrations/ -e test config/database.yml
 
