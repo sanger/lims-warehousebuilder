@@ -1,9 +1,9 @@
 GIT
   remote: http://github.com/sanger/lims-core.git
-  revision: c5eafa55e733b34be7ffcfd10662e3c766394809
-  branch: uat
+  revision: e97b060910df42ef1be3c2094612ad5f5827474e
+  branch: development
   specs:
-    lims-core (2.5.0.pre)
+    lims-core (2.3.0.1.0)
       active_support
       aequitas
       bunny (= 0.9.0.pre10)
@@ -16,10 +16,10 @@ GIT
 
 GIT
   remote: http://github.com/sanger/lims-laboratory-app.git
-  revision: 9f700ad637346bd95aa22cdb92e6842a64814efc
-  branch: uat
+  revision: 851b012d2fbc312449c4514c65c1332756432765
+  branch: development
   specs:
-    lims-laboratory-app (2.5.0.pre)
+    lims-laboratory-app (1.9.3)
 
 GIT
   remote: http://github.com/sanger/psd_logger.git
@@ -29,10 +29,10 @@ GIT
 
 GIT
   remote: https://github.com/sanger/lims-busclient.git
-  revision: d276ded954920fc9206e89f593189728bbdc2101
-  branch: uat
+  revision: 6a7587c14f85d084e2729ddddccc9d56a48f7243
+  branch: development
   specs:
-    lims-busclient (0.4.0.rc1)
+    lims-busclient (0.3.0)
       aequitas
       amqp
       facets
@@ -41,7 +41,7 @@ GIT
 PATH
   remote: .
   specs:
-    lims-warehousebuilder (1.0.0.rc1)
+    lims-warehousebuilder (0.9.2)
       aequitas
       amqp
       facets
@@ -90,7 +90,7 @@ GEM
       systemu (~> 2.5.0)
     mysql2 (0.3.13)
     rack (1.5.2)
-    rake (10.0.4)
+    rake (10.1.0)
     rspec (2.8.0)
       rspec-core (~> 2.8.0)
       rspec-expectations (~> 2.8.0)
@@ -118,9 +118,9 @@ PLATFORMS
 DEPENDENCIES
   debugger
   debugger-completion
-  lims-busclient (~> 0.4.0.rc1)!
-  lims-core (~> 2.5.0.pre)!
-  lims-laboratory-app (~> 2.5.0.pre)!
+  lims-busclient (~> 0.3)!
+  lims-core (~> 2.3)!
+  lims-laboratory-app (~> 1.9.3)!
   lims-warehousebuilder!
   psd_logger!
   rspec (~> 2.8.0)
