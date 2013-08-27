@@ -2,9 +2,9 @@ source "http://www.rubygems.org"
  
 gemspec
 
-gem 'lims-core', '~>2.3', :git => 'http://github.com/sanger/lims-core.git' , :branch => 'development'
-gem 'lims-laboratory-app', '~>1.9.3', :git => 'http://github.com/sanger/lims-laboratory-app.git' , :branch => 'development'
-gem 'lims-busclient', '~>0.3', :git => 'https://github.com/sanger/lims-busclient.git' , :branch => 'development'
+gem 'lims-core', '~>2.5.0.pre', :git => 'http://github.com/sanger/lims-core.git' , :branch => 'uat'
+gem 'lims-laboratory-app', '~>2.5.0.pre', :git => 'http://github.com/sanger/lims-laboratory-app.git' , :branch => 'uat'
+gem 'lims-busclient', '~>0.4.0.rc1', :git => 'https://github.com/sanger/lims-busclient.git' , :branch => 'uat'
 
 group :debugger do
   gem 'debugger'
