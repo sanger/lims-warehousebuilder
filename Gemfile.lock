@@ -16,10 +16,10 @@ GIT
 
 GIT
   remote: http://github.com/sanger/lims-laboratory-app.git
-  revision: 9f700ad637346bd95aa22cdb92e6842a64814efc
+  revision: ecb4d83b31f8f8f719515b3b163751415a2300e1
   branch: uat
   specs:
-    lims-laboratory-app (2.5.0.pre)
+    lims-laboratory-app (2.5.3.pre)
 
 GIT
   remote: http://github.com/sanger/psd_logger.git
@@ -41,7 +41,7 @@ GIT
 PATH
   remote: .
   specs:
-    lims-warehousebuilder (1.0.0.rc1)
+    lims-warehousebuilder (1.0.1.pre)
       aequitas
       amqp
       facets
@@ -90,7 +90,7 @@ GEM
       systemu (~> 2.5.0)
     mysql2 (0.3.13)
     rack (1.5.2)
-    rake (10.0.4)
+    rake (10.1.0)
     rspec (2.8.0)
       rspec-core (~> 2.8.0)
       rspec-expectations (~> 2.8.0)

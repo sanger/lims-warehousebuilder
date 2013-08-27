@@ -11,10 +11,9 @@ def connect_db(env)
 end
 
 # Triggers setup
-Lims::WarehouseBuilder::Model::NameToSequel.each do |_, klass|
-  next unless klass.ancestors.include?(Lims::WarehouseBuilder::Model::Common)
+DB.tables.select { |table| table =~ /historic/ }.each do |table|
   migration = Class.new { include Lims::WarehouseBuilder::TableMigration }.new
-  migration.maintain_warehouse_for(klass.table_name, klass.columns)  
+  migration.maintain_warehouse_for(table, DB[table.to_sym].columns)
 end
 
 shared_context 'use database' do
