@@ -13,7 +13,7 @@ end
 # Triggers setup
 DB.tables.select { |table| table =~ /historic/ }.each do |table|
   migration = Class.new { include Lims::WarehouseBuilder::TableMigration }.new
-  migration.maintain_warehouse_for(table, DB[table.to_sym].columns)  
+  migration.maintain_warehouse_for(table, DB[table.to_sym].columns)
 end
 
 shared_context 'use database' do
