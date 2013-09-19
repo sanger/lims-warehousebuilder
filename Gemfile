@@ -2,7 +2,7 @@ source "http://www.rubygems.org"
  
 gemspec
 
-gem 'lims-busclient', '~>0.4.0', :git => 'https://github.com/sanger/lims-busclient.git' , :branch => 'master'
+gem 'lims-busclient', '~>0.4.0', :git => 'https://github.com/sanger/lims-busclient.git' , :branch => 'development'
 
 group :debugger do
   gem 'debugger'
