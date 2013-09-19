@@ -1,3 +1,5 @@
+require 'lims-warehousebuilder/models/common'
+
 module Lims::WarehouseBuilder
   module Model
     class TubeRack < Sequel::Model(:historic_tube_racks)
