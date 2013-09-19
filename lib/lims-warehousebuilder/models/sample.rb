@@ -1,3 +1,5 @@
+require 'lims-warehousebuilder/models/common'
+
 module Lims::WarehouseBuilder
   module Model
     class Sample < Sequel::Model(:historic_samples)
