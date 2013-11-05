@@ -30,7 +30,6 @@ Sequel.migration do
       String :uuid, :fixed => true, :size => 64
       Integer :number_of_rows
       Integer :number_of_columns
-      Blob :image
       DateTime :created_at
       DateTime :updated_at
       String :created_by
@@ -43,7 +42,6 @@ Sequel.migration do
       String :uuid, :fixed => true, :size => 64
       Integer :number_of_rows
       Integer :number_of_columns
-      Blob :image
       DateTime :created_at
       DateTime :updated_at
       String :created_by
