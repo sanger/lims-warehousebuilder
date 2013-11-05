@@ -1,6 +1,4 @@
 require 'lims-warehousebuilder/json_decoder'
-require 'rubygems'
-require 'ruby-debug/debugger'
 
 module Lims::WarehouseBuilder
   module Decoder
@@ -21,16 +19,17 @@ module Lims::WarehouseBuilder
           # If the gel image already exists for the gel uuid,
           # we get back the record using prepared_model method
           # in order to update it (no history of images).
-          gel_image_object = prepared_model(gel_uuid, "gel_image").tap do |gi|
-            gi.uuid = @payload["uuid"]
-            gi.image = image 
+          gel_image_metadata_object = prepared_model(gel_uuid, "gel_image_metadata").tap do |gim|
+            gim.created_at = @payload["date"]  
+            gim.uuid = gel_uuid
           end
 
-          gel_image_metadata_object = Model::GelImageMetadata.new.tap do |gim|
-            gim.created_at = @payload["date"]
-            gim.set_gel_image(gel_image_object)
+          gel_image_object = (gel_image_metadata_object.gel_image || Model::GelImage.new).tap do |gi|
+            gi.image = image
           end
-          
+
+          gel_image_metadata_object.set_gel_image(gel_image_object)
+
           [gel_image_object, gel_image_metadata_object]
         end
       end
