@@ -2,7 +2,7 @@ Sequel.migration do
   up do
     create_table :gel_images do
       primary_key :internal_id
-      String :gel_uuid, :fixed => true, :size => 64
+      String :uuid, :fixed => true, :size => 64
       Blob :image
     end
 
