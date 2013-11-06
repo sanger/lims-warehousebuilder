@@ -19,7 +19,7 @@ module Lims::WarehouseBuilder
           # If the gel image already exists for the gel uuid,
           # we get back the record using prepared_model method
           # in order to update it (no history of images).
-          gel_image_metadata_object = prepared_model(gel_uuid, "gel_image_metadata").tap do |gim|
+          gel_image_metadata_object = (Model.model_by_uuid(gel_uuid, "gel_image_metadata") rescue Model::GelImageMetadata.new).tap do |gim|
             gim.created_at = @payload["date"]  
             gim.uuid = gel_uuid
           end
