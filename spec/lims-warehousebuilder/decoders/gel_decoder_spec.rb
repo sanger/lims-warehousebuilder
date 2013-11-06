@@ -89,7 +89,10 @@ module Lims::WarehouseBuilder
           result = new_decoder.call 
           gel_image, gel_image_metadata = result[0], result[1]
           gel_image.internal_id.should_not be_nil
+          gel_image.image.should == new_image
           gel_image_metadata.internal_id.should_not be_nil
+          gel_image_metadata.uuid.should == gel_uuid
+          gel_image_metadata.gel_image.should == gel_image
         end
       end
     end
