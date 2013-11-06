@@ -20,6 +20,14 @@ module Lims::WarehouseBuilder::Decoder
         described_class.decoder_for("tube_rack").should == TubeRackDecoder
       end
 
+      it "gets the right decoder for gel" do
+        described_class.decoder_for("gel").should == GelDecoder
+      end
+
+      it "gets the right decoder for plate" do
+        described_class.decoder_for("plate").should == JsonDecoder
+      end
+
       it "gets the right decoder for barcode" do
         described_class.decoder_for("barcode").should == JsonDecoder
       end
