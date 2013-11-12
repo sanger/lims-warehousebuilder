@@ -2,13 +2,9 @@ ENV["LIMS_WAREHOUSEBUILDER_ENV"] = "test" unless defined?(ENV["LIMS_WAREHOUSEBUI
 require 'yaml'
 require 'timecop'
 require 'sequel'
+require 'lims-warehousebuilder/sequel'
 require 'lims-warehousebuilder/table_migration'
 require 'lims-warehousebuilder/model'
-
-def connect_db(env)
-  config = YAML.load_file(File.join('config', 'database.yml'))
-  Sequel.connect(config[env.to_s])
-end
 
 # Triggers setup
 DB.tables.select { |table| table =~ /historic/ }.each do |table|
@@ -17,7 +13,8 @@ DB.tables.select { |table| table =~ /historic/ }.each do |table|
 end
 
 shared_context 'use database' do
-  let(:db) { connect_db(:test) }
+  let(:db) { DB }
+  let(:db_images) { DB_IMAGES }
 
   after(:each) do
     db[:sample_management_activity].delete
@@ -25,6 +22,10 @@ shared_context 'use database' do
     db[:current_tubes].delete
     db.tables.each { |table| db[table.to_sym].delete }
     db.disconnect
+
+    %w{gel_image_metadata gel_images}.each do |table|
+      db_images[table.to_sym].delete
+    end
   end
 end
 

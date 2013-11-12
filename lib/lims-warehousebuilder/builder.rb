@@ -24,12 +24,12 @@ module Lims
         '*.*.sample.*', '*.*.bulkcreatesample.*', '*.*.swapsamples.*', 
         '*.*.bulkupdatesample.*', '*.*.bulkdeletesample.*',
         '*.*.barcode.create', '*.*.bulkcreatebarcode.*',
-        '*.*.labellable.create', '*.*.bulkcreatelabellable.*'
+        '*.*.labellable.create', '*.*.bulkcreatelabellable.*',
+        '*.*.gel.*', '*.*.plate.*'
       ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, "[^\.]*")) }
 
       # @param [Hash] amqp_settings
-      # @param [Hash] warehouse_settings
-      def initialize(amqp_settings, warehouse_settings)
+      def initialize(amqp_settings)
         @queue_name = amqp_settings.delete("queue_name")
         consumer_setup(amqp_settings)
         set_queue
@@ -124,7 +124,7 @@ module Lims
         {}.tap do |tables|
           objects.each do |o|
             klass = o.class
-            next unless klass.ancestors.include?(Lims::WarehouseBuilder::Model::Common)
+            next unless ResourceTools::Database::HISTORIC_TABLES.include?(klass.table_name)
             tables[klass.table_name] = klass.columns
           end
         end.each do |table_name, columns|

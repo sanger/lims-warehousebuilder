@@ -2,7 +2,7 @@ require 'lims-warehousebuilder/models/common'
 
 module Lims::WarehouseBuilder
   module Model
-    class Barcode < Sequel::Model(:historic_barcodes)
+    class Barcode < Sequel::Model(DB[:historic_barcodes])
       
       include ResourceTools::Mapping
       include Common

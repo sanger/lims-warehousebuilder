@@ -2,7 +2,7 @@ require 'lims-warehousebuilder/models/common'
 
 module Lims::WarehouseBuilder
   module Model
-    class Sample < Sequel::Model(:historic_samples)
+    class Sample < Sequel::Model(DB[:historic_samples])
       
       include ResourceTools::Mapping
       include Common

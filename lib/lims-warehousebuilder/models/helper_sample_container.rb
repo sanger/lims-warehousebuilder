@@ -7,7 +7,7 @@ module Lims::WarehouseBuilder
     # association sample_uuid resource_uuid in the table 
     # sample_container_helper. Then, when we receive an order message,
     # we can get the sample uuid from the item uuid using this table. 
-    class SampleContainerHelper < Sequel::Model(:sample_container_helper)
+    class SampleContainerHelper < Sequel::Model(DB[:sample_container_helper])
       
       def before_save
         super

@@ -5,15 +5,28 @@ mysql: &MYSQL
   host: localhost
   port: 3306
   
-development:
+
+warehouse_development:
   <<: *MYSQL
   database: warehouse_development
 
-production:
+warehouse_production:
   <<: *MYSQL
   database: warehouse_development
 
-test:
+warehouse_test:
   <<: *MYSQL
   database: warehouse_test
 
+
+warehouse_images_development:
+  <<: *MYSQL
+  database: warehouse_images_development
+
+warehouse_images_production:
+  <<: *MYSQL
+  database: warehouse_images_production
+
+warehouse_images_test:
+  <<: *MYSQL
+  database: warehouse_images_test

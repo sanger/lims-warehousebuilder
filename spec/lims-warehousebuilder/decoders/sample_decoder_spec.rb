@@ -9,7 +9,7 @@ module Lims::WarehouseBuilder
     include_context "timecop"
 
     context "Sample payload from lims-management-app" do
-      let(:builder) { Builder.new({}, {}) }
+      let(:builder) { Builder.new({}) }
       let(:result) { builder.send(:decode_payload, payload, :action => action) }
 
       context "decode bulk create sample message" do

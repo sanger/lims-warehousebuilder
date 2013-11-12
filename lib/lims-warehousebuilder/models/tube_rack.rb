@@ -2,7 +2,7 @@ require 'lims-warehousebuilder/models/common'
 
 module Lims::WarehouseBuilder
   module Model
-    class TubeRack < Sequel::Model(:historic_tube_racks)
+    class TubeRack < Sequel::Model(DB[:historic_tube_racks])
       
       include ResourceTools::Mapping
       include Common
