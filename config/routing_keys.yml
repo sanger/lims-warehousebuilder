@@ -1,0 +1,29 @@
+laboratory_routing_keys: &LABORATORY
+  - '*.*.order.*'
+  - '*.*.tube.*'
+  - '*.*.spincolumn.*'
+  - '*.*.tuberack.*'
+  - '*.*.gel.*'
+  - '*.*.plate.*'
+  - '*.*.bulkcreatetube.*'
+  - '*.*.tuberackmove.*'
+  - '*.*.transfertubestotubes.*'
+  - '*.*.swapsamples.*'
+  - '*.*.labellable.create'
+  - '*.*.bulkcreatelabellable.*'
+
+management_routing_keys: &MANAGEMENT
+  - '*.*.sample.*'
+  - '*.*.bulkcreatesample.*'
+  - '*.*.bulkupdatesample.*'
+  - '*.*.bulkdeletesample.*'
+
+support_routing_keys: &SUPPORT
+  - '*.*.barcode.create'
+  - '*.*.bulkcreatebarcode.*'
+
+routing_keys:
+  - *LABORATORY
+  - *MANAGEMENT
+  - *SUPPORT
+
