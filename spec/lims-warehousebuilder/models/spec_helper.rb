@@ -8,7 +8,7 @@ module Lims::WarehouseBuilder
     let(:historic_table) { "historic_#{model}s" }
     let(:current_table) { "current_#{model}s" }
 
-    context "new object" do
+    context "when saving a new object" do
       it "saves the object in the historic table" do
         expect { object.save }.to change { db[historic_table.to_sym].count }.by(1)
       end
@@ -18,7 +18,7 @@ module Lims::WarehouseBuilder
       end
     end
 
-    context "update object" do
+    context "when updating an object" do
       before(:each) do
         object.save
       end
@@ -35,6 +35,23 @@ module Lims::WarehouseBuilder
         old_id = db[current_table.to_sym].where(:uuid => object.uuid)
         updated_object.save
         db[current_table.to_sym].where(:uuid => object.uuid).should == old_id
+      end
+    end
+
+    context "when inserting a row in the current table with an existing internal_id" do
+      let(:next_historic_id) do
+        db[historic_table.to_sym].insert
+        db[historic_table.to_sym].order(Sequel.desc(:internal_id)).first[:internal_id] + 1
+      end
+
+      before(:each) do
+        db[current_table.to_sym].insert(:internal_id => next_historic_id)
+      end
+
+      it "removes the existing row with an identical internal_id and saves the new historic row" do
+        expect do 
+          object.save
+        end.to change { db[current_table.to_sym].count }.by(0)
       end
     end
   end
