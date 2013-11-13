@@ -15,19 +15,6 @@ module Lims
       attribute :queue_name, String, :required => true, :writer => :private
       attribute :log, Object, :required => false, :writer => :private
       
-      EXPECTED_ROUTING_KEYS_PATTERNS = [
-        '*.*.order.*',
-        '*.*.tube.*', '*.*.bulkcreatetube.*',
-        '*.*.spincolumn.*',
-        '*.*.tuberack.*', '*.*.tuberackmove.*',
-        '*.*.transfertubestotubes.*',
-        '*.*.sample.*', '*.*.bulkcreatesample.*', '*.*.swapsamples.*', 
-        '*.*.bulkupdatesample.*', '*.*.bulkdeletesample.*',
-        '*.*.barcode.create', '*.*.bulkcreatebarcode.*',
-        '*.*.labellable.create', '*.*.bulkcreatelabellable.*',
-        '*.*.gel.*', '*.*.plate.*'
-      ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, "[^\.]*")) }
-
       # @param [Hash] amqp_settings
       def initialize(amqp_settings)
         @queue_name = amqp_settings.delete("queue_name")
@@ -51,26 +38,21 @@ module Lims
       def set_queue
         self.add_queue(queue_name) do |metadata, payload|
           log.info("Message received with the routing key: #{metadata.routing_key}")
-          if expected_message?(metadata.routing_key)
-            log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
-            begin
-              action = metadata.routing_key.match(/^[\w\.]*\.(\w*)$/)[1]
-              objects = decode_payload(payload, action)
-              maintain_warehouse(objects)
-              save_all(objects)
-              metadata.ack
-              log.info("Message processed and acknowledged")
-            rescue Sequel::Rollback, MessageToBeRequeued => e
-              metadata.reject(:requeue => true)
-              log.info("Message requeued: #{e}")
-            rescue ProcessingFailed => ex
-              # TODO: use the dead lettering queue
-              metadata.reject
-              log.error("Processing the message '#{metadata.routing_key}' failed with: #{ex.to_s}")
-            end
-          else
+          log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
+          begin
+            action = metadata.routing_key.match(/^[\w\.]*\.(\w*)$/)[1]
+            objects = decode_payload(payload, action)
+            maintain_warehouse(objects)
+            save_all(objects)
+            metadata.ack
+            log.info("Message processed and acknowledged")
+          rescue Sequel::Rollback, MessageToBeRequeued => e
+            metadata.reject(:requeue => true)
+            log.info("Message requeued: #{e}")
+          rescue ProcessingFailed => ex
+            # TODO: use the dead lettering queue
             metadata.reject
-            log.error("Message rejected: cannot handle this message (routing key: #{metadata.routing_key})")
+            log.error("Processing the message '#{metadata.routing_key}' failed with: #{ex.to_s}")
           end
         end
       end
@@ -86,15 +68,6 @@ module Lims
             objects_to_save << objects
           end
         end.flatten
-      end
-
-      # @param [String] routing_key
-      # @return [Bool]
-      def expected_message?(routing_key)
-        EXPECTED_ROUTING_KEYS_PATTERNS.each do |pattern|
-          return true if routing_key.match(pattern)
-        end
-        false
       end
 
       # @param [String] name
