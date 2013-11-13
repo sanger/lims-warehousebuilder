@@ -97,7 +97,7 @@ module Lims
         {}.tap do |tables|
           objects.each do |o|
             klass = o.class
-            next unless ResourceTools::Database::HISTORIC_TABLES.include?(klass.table_name)
+            next unless ResourceTools::Database::HISTORIC_TABLES.include?(klass.table_name.to_s)
             tables[klass.table_name] = klass.columns
           end
         end.each do |table_name, columns|
