@@ -21,6 +21,7 @@ laboratory_routing_keys: &LABORATORY
 
 management_routing_keys: &MANAGEMENT
   - '*.*.sample.*'
+  - '*.*.samplecollection.*'
   - '*.*.bulkcreatesample.*'
   - '*.*.bulkupdatesample.*'
   - '*.*.bulkdeletesample.*'
