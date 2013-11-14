@@ -3,6 +3,17 @@ require 'lims-warehousebuilder/model'
 
 module Lims::WarehouseBuilder
 
+  shared_examples_for "copying historic row to current table" do
+    it "copies the historic table row into the current table" do
+      historic_row = object.save
+      current_row = db[current_table.to_sym].where(:uuid => historic_row.uuid).first
+      historic_row.values.each do |k,v|
+        current_row[k].should == v
+      end
+    end
+  end
+
+
   shared_examples_for "a warehouse model" do
 
     let(:historic_table) { "historic_#{model}s" }
@@ -16,7 +27,10 @@ module Lims::WarehouseBuilder
       it "saves the object in the current table" do
         expect { object.save }.to change { db[current_table.to_sym].count }.by(1)
       end
+
+      it_behaves_like "copying historic row to current table"
     end
+
 
     context "when updating an object" do
       before(:each) do
@@ -36,7 +50,10 @@ module Lims::WarehouseBuilder
         updated_object.save
         db[current_table.to_sym].where(:uuid => object.uuid).should == old_id
       end
+
+      it_behaves_like "copying historic row to current table"
     end
+
 
     context "when inserting a row in the current table with an existing internal_id" do
       let(:next_historic_id) do
@@ -53,6 +70,8 @@ module Lims::WarehouseBuilder
           object.save
         end.to change { db[current_table.to_sym].count }.by(0)
       end
+      
+      it_behaves_like "copying historic row to current table"
     end
   end
 end
