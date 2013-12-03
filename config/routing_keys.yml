@@ -9,6 +9,7 @@ laboratory_routing_keys: &LABORATORY
   - '*.*.labellable.*'
   - '*.*.filterpaper.*'
   - '*.*.fluidigm.*'
+  - '*.*.snpassay.*'
   # Bulk resource
   - '*.*.bulkcreatefilterpaper.*'
   - '*.*.bulkcreatetube.*'
