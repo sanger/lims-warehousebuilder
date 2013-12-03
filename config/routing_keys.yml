@@ -21,6 +21,7 @@ laboratory_routing_keys: &LABORATORY
   - '*.*.transfermultiplefilterpaperstotubes.*'
   - '*.*.transfermultiplefilterpaperstowells.*'
   - '*.*.transferplatestofluidigm.*'
+  - '*.*.movesnpassays.*'
 
 management_routing_keys: &MANAGEMENT
   - '*.*.sample.*'
