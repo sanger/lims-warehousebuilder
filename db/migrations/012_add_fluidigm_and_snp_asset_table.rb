@@ -50,14 +50,6 @@ Sequel.migration do
       String :updated_by
       index :uuid
     end
-
-    # helper
-    create_table :snp_asset_container_helper do
-      primary_key :internal_id
-      String :snp_asset_uuid, :fixed => true, :size => 64
-      String :container_uuid, :fixed => true, :size => 64
-      index :container_uuid
-    end
   end
 
   down do
@@ -65,6 +57,5 @@ Sequel.migration do
     drop_table :historic_fluidigms
     drop_table :current_snp_assets
     drop_table :historic_snp_assets
-    drop_table :snp_asset_container_helper
   end
 end
