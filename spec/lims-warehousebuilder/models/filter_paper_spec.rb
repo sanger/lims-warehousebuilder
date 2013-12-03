@@ -9,16 +9,12 @@ module Lims::WarehouseBuilder
     let(:uuid) { "11111111-2222-3333-4444-555555555555" }
     let(:created_at) { Time.now.utc }
     let(:created_by) { "username" }
-    let(:number_of_rows) { 2 }
-    let(:number_of_columns) { 2 }
 
     let(:object) do 
       Model.model_for(model).new.tap do |s|
         s.uuid = uuid
         s.created_at = created_at
         s.created_by = created_by
-        s.number_of_rows = number_of_rows
-        s.number_of_columns = number_of_columns
       end
     end
 

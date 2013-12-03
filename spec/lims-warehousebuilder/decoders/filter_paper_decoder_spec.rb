@@ -9,12 +9,10 @@ module Lims::WarehouseBuilder
       let(:payload) do
         {"filter_paper" => {
           "uuid" => "filter paper uuid",
-          "number_of_rows" => 2,
-          "number_of_columns" => 2,
-          "locations" => {
-            "A1" => [{"sample" => {"uuid" => "sample 1 uuid"}}],
-            "B1" => [{"sample" => {"uuid" => "sample 2 uuid"}}]
-          }
+          "aliquots" => [
+            {"sample" => {"uuid" => "sample 1 uuid"}},
+            {"sample" => {"uuid" => "sample 2 uuid"}}
+          ]
         }}
       end
       let(:expected_resources) { ["filter_paper", "sample", "sample"] }
