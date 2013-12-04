@@ -13,11 +13,11 @@ module Lims::WarehouseBuilder
           "number_of_columns" => 12,
           "fluidigm_wells" => {
             "S1" => [{"sample" => {"uuid" => "sample 1 uuid"}}],
-            "A1" => [{"snp_asset" => {"uuid" => "snp_asset 1 uuid"}}]
+            "A1" => [{"snp_assay" => {"uuid" => "snp_assay 1 uuid"}}]
           }
         }}
       end
-      let(:expected_resources) { ["fluidigm", "sample", "snp_asset"] }
+      let(:expected_resources) { ["fluidigm", "sample", "snp_assay"] }
       let(:expected_mandatory_keys) { ["date", "user", "action", "ancestor_type", "ancestor_uuid"] }
 
       it_behaves_like "decoding resources"

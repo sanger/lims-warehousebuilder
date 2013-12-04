@@ -24,8 +24,8 @@ Sequel.migration do
       String :updated_by
     end
 
-    # Snp asset
-    create_table :current_snp_assets do
+    # Snp assay
+    create_table :current_snp_assays do
       primary_key :internal_id
       String :uuid, :fixed => true, :size => 64
       String :name
@@ -38,7 +38,7 @@ Sequel.migration do
       index :uuid
     end
 
-    create_table :historic_snp_assets do
+    create_table :historic_snp_assays do
       primary_key :internal_id
       String :uuid, :fixed => true, :size => 64
       String :name
@@ -55,7 +55,7 @@ Sequel.migration do
   down do
     drop_table :current_fluidigms
     drop_table :historic_fluidigms
-    drop_table :current_snp_assets
-    drop_table :historic_snp_assets
+    drop_table :current_snp_assays
+    drop_table :historic_snp_assays
   end
 end
