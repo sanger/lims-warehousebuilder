@@ -10,11 +10,11 @@ namespace :dev do
   end
 
   task :migrate => :setup_env do 
-    sh "bundle exec sequel -m db/migrations/ -e warehouse_development config/database.yml"
+    sh "bundle exec sequel -m db/migrations/ -e development config/database.yml"
   end
 
   task :migrate_down => :setup_env do 
-    sh "bundle exec sequel -m db/migrations/ -M 0 -e warehouse_development config/database.yml"
+    sh "bundle exec sequel -m db/migrations/ -M 0 -e development config/database.yml"
   end
 
   task :time => :setup_env do
@@ -30,7 +30,7 @@ namespace :test do
 
   task :migrate => :setup_env do 
     sh 'mysql -uroot -p -e "DROP DATABASE IF EXISTS warehouse_test; CREATE DATABASE warehouse_test DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;"'
-    sh "bundle exec sequel -m db/migrations/ -e warehouse_test config/database.yml"
+    sh "bundle exec sequel -m db/migrations/ -e test config/database.yml"
   end
 
   task :spec => :setup_env do
@@ -45,7 +45,7 @@ namespace :prod do
   end
 
   task :migrate => :setup_env do
-    sh "bundle exec sequel -m db/migrations/ -e warehouse_production config/database.yml"
+    sh "bundle exec sequel -m db/migrations/ -e production config/database.yml"
   end
 
   task :run => :setup_env do
