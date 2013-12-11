@@ -8,7 +8,5 @@ script:
   - bundle exec rake test:spec
 before_script:
   - mysql -e 'CREATE DATABASE warehouse_test DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;'
-  - mysql -e 'CREATE DATABASE warehouse_images_test DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;'
-  - bundle exec sequel -m db/migrations/ -e warehouse_test config/database.yml
-  - bundle exec sequel -m db/migrations_images/ -e warehouse_images_test config/database.yml
+  - bundle exec sequel -m db/migrations/ -e test config/database.yml
 

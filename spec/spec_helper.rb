@@ -14,7 +14,6 @@ end
 
 shared_context 'use database' do
   let(:db) { DB }
-  let(:db_images) { DB_IMAGES }
 
   after(:each) do
     db[:sample_management_activity].delete
@@ -22,10 +21,6 @@ shared_context 'use database' do
     db[:current_tubes].delete
     db.tables.each { |table| db[table.to_sym].delete }
     db.disconnect
-
-    %w{gel_image_metadata gel_images}.each do |table|
-      db_images[table.to_sym].delete
-    end
   end
 end
 
