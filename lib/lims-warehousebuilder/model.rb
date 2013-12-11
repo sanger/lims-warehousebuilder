@@ -4,7 +4,6 @@ require 'sequel'
 require 'lims-warehousebuilder/sequel'
 require 'lims-warehousebuilder/resource_tools'
 require_all('models/*.rb')
-require_all('models/images/*.rb')
 
 module Lims::WarehouseBuilder
   module Model
@@ -24,9 +23,6 @@ module Lims::WarehouseBuilder
       if ResourceTools::Database::MODEL_TABLES.include?(plural_name) ||
         ResourceTools::Database::MODEL_TABLES.include?(lower_name)
         return self.generate_model(lower_name)
-      elsif ResourceTools::Database::IMAGE_TABLES.include?(plural_name) ||
-        ResourceTools::Database::IMAGE_TABLES.include?(lower_name)
-        return self.generate_image_db_model(lower_name)
       else
         raise UnknownModel, "unknown required model (#{lower_name})"
       end
@@ -83,18 +79,6 @@ module Lims::WarehouseBuilder
               Model.model_by_uuid(uuid, "#{name}") 
             end
           end
-      }
-      Model.const_get(class_name)
-    end
-
-    # @param [String] name
-    # @return [Sequel::Model]
-    # Generate a default model class for model contained in DB_IMAGES.
-    def self.generate_image_db_model(name)
-      class_name = class_name(name)
-      Model.class_eval %Q{
-        class #{class_name} < Sequel::Model(DB_IMAGES[:#{name}])
-        end
       }
       Model.const_get(class_name)
     end

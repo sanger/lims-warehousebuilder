@@ -32,7 +32,6 @@ module Lims::WarehouseBuilder
     module Database
       CURRENT_TABLES = DB.tables.keep_if { |t| t =~ /current/ }.map(&:to_s)
       HISTORIC_TABLES = DB.tables.keep_if { |t| t =~ /historic/ }.map(&:to_s)
-      IMAGE_TABLES = DB_IMAGES.tables.map(&:to_s)
       MODEL_TABLES = CURRENT_TABLES.map { |t| t.sub(/current_/, '') }
       S2_MODELS = MODEL_TABLES.clone.keep_if { |t| t =~ /^.*s$/ }.map { |m| m[0, m.size - 1] }
     end
