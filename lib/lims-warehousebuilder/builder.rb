@@ -63,7 +63,7 @@ module Lims
       def decode_payload(payload, action)
         [].tap do |objects_to_save|
           Decoder::JsonDecoder.foreach_s2_resource(payload) do |model, attributes|
-            decoder = decoder_for(model).new(model, attributes)
+            decoder = decoder_for(model).new(model, attributes, payload)
             objects = decoder.call({:action => action})
             objects_to_save << objects
           end

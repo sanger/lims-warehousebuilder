@@ -15,9 +15,10 @@ module Lims::WarehouseBuilder
 
       # @param [String] model
       # @param [Hash,String] payload
-      def initialize(model, payload)
+      def initialize(model, payload, full_payload)
         @model = model 
         @payload = payload
+        @full_payload = full_payload
       end
 
       # @param [Hash] options
@@ -250,6 +251,15 @@ module Lims::WarehouseBuilder
         end
         model
       end
+
+      # @return [Array] the transfer array from the payload or nill
+      # if the JSON does not contain it
+      def get_transfers
+        full_playload_hash = JsonDecoder::to_hash(@full_payload)
+        action = full_playload_hash.keys[0]
+        full_playload_hash[action]["transfers"]
+      end
+
     end
   end
 end
