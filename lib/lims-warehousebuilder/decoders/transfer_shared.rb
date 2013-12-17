@@ -4,7 +4,7 @@ module Lims::WarehouseBuilder
       # @return [Array] the transfer array from the payload or nill
       # if the JSON does not contain it
       def get_transfers
-        full_playload_hash = JsonDecoder::to_hash(@full_payload)
+        full_playload_hash = @full_payload.is_a?(Hash) ? @full_payload : JsonDecoder::to_hash(@full_payload)
         action = full_playload_hash.keys[0]
         full_playload_hash[action]["transfers"]
       end
