@@ -91,7 +91,7 @@ module Lims::WarehouseBuilder
           h["ancestor_type"] = ancestor_type
         end
       end
-      let(:decoder) { described_class.new(model, payload) }
+      let(:decoder) { described_class.new(model, payload, payload) }
       let(:result) { decoder.call }
 
       it_behaves_like "a decoder"

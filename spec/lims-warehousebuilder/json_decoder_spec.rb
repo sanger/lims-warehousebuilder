@@ -25,7 +25,7 @@ module Lims::WarehouseBuilder::Decoder
       end
 
       it "gets the right decoder for plate" do
-        described_class.decoder_for("plate").should == JsonDecoder
+        described_class.decoder_for("plate").should == PlateDecoder
       end
 
       it "gets the right decoder for filter paper" do
