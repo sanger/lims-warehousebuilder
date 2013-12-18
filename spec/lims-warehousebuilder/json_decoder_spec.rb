@@ -32,6 +32,10 @@ module Lims::WarehouseBuilder::Decoder
         described_class.decoder_for("filter_paper").should == JsonDecoder
       end
 
+      it "gets the right decoder for fluidigm" do
+        described_class.decoder_for("fluidigm").should == FluidigmDecoder
+      end
+
       it "gets the right decoder for barcode" do
         described_class.decoder_for("barcode").should == JsonDecoder
       end
