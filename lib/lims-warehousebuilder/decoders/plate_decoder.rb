@@ -14,14 +14,11 @@ module Lims::WarehouseBuilder
         transfers = get_transfers
 
         if transfers && resource_uuids(transfers).include?(plate_uuid)
-          [].tap do |objects|
-            # Set the force_save token to force the update of the plate
-            force_save!
-            objects << super
-          end
-        else
-          super
+          # Set the force_save token to force the update of the plate
+          force_save!
         end
+
+        super
       end
 
       def resource_uuids(transfers)
