@@ -22,13 +22,11 @@ module Lims::WarehouseBuilder
       end
 
       def resource_uuids(transfers)
-        uuids = []
-        transfers.each do |transfer|
-          uuids.merge!(transfer.map do |key, value|
-            value if key.match(/uuid/)
-          end)
-        end
-        uuids.compact
+        transfers.inject([]) do |uuids, transfer|
+          uuids << transfer["source_uuid"]
+          uuids << transfer["target_uuid"]
+          uuids
+        end.uniq
       end
 
     end
