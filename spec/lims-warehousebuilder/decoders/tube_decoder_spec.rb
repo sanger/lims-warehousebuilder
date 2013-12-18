@@ -41,7 +41,7 @@ module Lims::WarehouseBuilder
         Model::TubeRack.new(:uuid => tube_rack_uuid).save
       end
 
-      let(:decoder) { described_class.new(model, payload) }
+      let(:decoder) { described_class.new(model, payload, payload) }
       let(:result) { decoder.call }
 
       it_behaves_like "a decoder"
