@@ -39,7 +39,7 @@ module Lims::WarehouseBuilder
           h["user"] = user
         end
       end
-      let(:decoder) { Decoder::JsonDecoder.new(model, payload) }
+      let(:decoder) { Decoder::JsonDecoder.new(model, payload, payload) }
       let(:result) { decoder.call }
 
       it_behaves_like "a decoder"
