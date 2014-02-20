@@ -24,6 +24,8 @@ module Lims::WarehouseBuilder
                        when /ean13/ then "ean13"
                        end
 
+          next unless label_type
+
           begin
             barcode = klass.send("barcode_by_#{label_type}_barcode", label_value)
           rescue Model::NotFound => e

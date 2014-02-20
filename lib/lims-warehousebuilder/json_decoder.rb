@@ -26,6 +26,7 @@ module Lims::WarehouseBuilder
       # @return [Array<Sequel::Model>]
       def call(options = {})
         result = _call(options)
+        return [] unless result
         result.is_a?(Array) ? result.flatten.compact : [result]
       end
 
