@@ -26,7 +26,7 @@ GIT
 PATH
   remote: .
   specs:
-    lims-warehousebuilder (1.7.0)
+    lims-warehousebuilder (1.7.1)
       aequitas
       amqp
       facets
@@ -73,7 +73,7 @@ GEM
     rspec-expectations (2.8.0)
       diff-lcs (~> 1.1.2)
     rspec-mocks (2.8.0)
-    sequel (4.5.0)
+    sequel (4.7.0)
     shotgun (0.9)
       rack (>= 1.0)
     timecop (0.6.3)
@@ -89,7 +89,7 @@ DEPENDENCIES
   debugger
   debugger-completion
   lims-busclient (~> 0.4.0)!
-  lims-exception-notifier-app (~> 0.1.2)!
+  lims-exception-notifier-app (~> 0.1)!
   lims-warehousebuilder!
   psd_logger!
   rspec (~> 2.8.0)
