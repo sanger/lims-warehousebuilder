@@ -15,15 +15,18 @@ module Lims::WarehouseBuilder
 
       # @param [String] model
       # @param [Hash,String] payload
-      def initialize(model, payload)
+      # @param [Hash,String] full_payload contains the original full payload
+      def initialize(model, payload, full_payload)
         @model = model 
         @payload = payload
+        @full_payload = full_payload
       end
 
       # @param [Hash] options
       # @return [Array<Sequel::Model>]
       def call(options = {})
         result = _call(options)
+        return [] unless result
         result.is_a?(Array) ? result.flatten.compact : [result]
       end
 

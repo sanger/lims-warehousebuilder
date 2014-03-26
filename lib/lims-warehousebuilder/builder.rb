@@ -15,21 +15,8 @@ module Lims
       attribute :queue_name, String, :required => true, :writer => :private
       attribute :log, Object, :required => false, :writer => :private
       
-      EXPECTED_ROUTING_KEYS_PATTERNS = [
-        '*.*.order.*',
-        '*.*.tube.*', '*.*.bulkcreatetube.*',
-        '*.*.spincolumn.*',
-        '*.*.tuberack.*', '*.*.tuberackmove.*',
-        '*.*.transfertubestotubes.*',
-        '*.*.sample.*', '*.*.bulkcreatesample.*', '*.*.swapsamples.*', 
-        '*.*.bulkupdatesample.*', '*.*.bulkdeletesample.*',
-        '*.*.barcode.create', '*.*.bulkcreatebarcode.*',
-        '*.*.labellable.create', '*.*.bulkcreatelabellable.*'
-      ].map { |k| Regexp.new(k.gsub(/\./, "\\.").gsub(/\*/, "[^\.]*")) }
-
       # @param [Hash] amqp_settings
-      # @param [Hash] warehouse_settings
-      def initialize(amqp_settings, warehouse_settings)
+      def initialize(amqp_settings)
         @queue_name = amqp_settings.delete("queue_name")
         consumer_setup(amqp_settings)
         set_queue
@@ -51,26 +38,21 @@ module Lims
       def set_queue
         self.add_queue(queue_name) do |metadata, payload|
           log.info("Message received with the routing key: #{metadata.routing_key}")
-          if expected_message?(metadata.routing_key)
-            log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
-            begin
-              action = metadata.routing_key.match(/^[\w\.]*\.(\w*)$/)[1]
-              objects = decode_payload(payload, action)
-              maintain_warehouse(objects)
-              save_all(objects)
-              metadata.ack
-              log.info("Message processed and acknowledged")
-            rescue Sequel::Rollback, MessageToBeRequeued => e
-              metadata.reject(:requeue => true)
-              log.info("Message requeued: #{e}")
-            rescue ProcessingFailed => ex
-              # TODO: use the dead lettering queue
-              metadata.reject
-              log.error("Processing the message '#{metadata.routing_key}' failed with: #{ex.to_s}")
-            end
-          else
+          log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
+          begin
+            action = metadata.routing_key.match(/^[\w\.]*\.(\w*)$/)[1]
+            objects = decode_payload(payload, action)
+            maintain_warehouse(objects)
+            save_all(objects)
+            metadata.ack
+            log.info("Message processed and acknowledged")
+          rescue Sequel::Rollback, MessageToBeRequeued => e
+            metadata.reject(:requeue => true)
+            log.info("Message requeued: #{e}")
+          rescue ProcessingFailed => ex
+            # TODO: use the dead lettering queue
             metadata.reject
-            log.error("Message rejected: cannot handle this message (routing key: #{metadata.routing_key})")
+            log.error("Processing the message '#{metadata.routing_key}' failed with: #{ex.to_s}")
           end
         end
       end
@@ -81,20 +63,11 @@ module Lims
       def decode_payload(payload, action)
         [].tap do |objects_to_save|
           Decoder::JsonDecoder.foreach_s2_resource(payload) do |model, attributes|
-            decoder = decoder_for(model).new(model, attributes)
+            decoder = decoder_for(model).new(model, attributes, payload)
             objects = decoder.call({:action => action})
             objects_to_save << objects
           end
         end.flatten
-      end
-
-      # @param [String] routing_key
-      # @return [Bool]
-      def expected_message?(routing_key)
-        EXPECTED_ROUTING_KEYS_PATTERNS.each do |pattern|
-          return true if routing_key.match(pattern)
-        end
-        false
       end
 
       # @param [String] name
@@ -124,7 +97,7 @@ module Lims
         {}.tap do |tables|
           objects.each do |o|
             klass = o.class
-            next unless klass.ancestors.include?(Lims::WarehouseBuilder::Model::Common)
+            next unless ResourceTools::Database::HISTORIC_TABLES.include?(klass.table_name.to_s)
             tables[klass.table_name] = klass.columns
           end
         end.each do |table_name, columns|
