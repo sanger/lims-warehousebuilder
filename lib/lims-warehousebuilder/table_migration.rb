@@ -17,10 +17,16 @@ module Lims::WarehouseBuilder
       new_values = columns.map { |c| "NEW.#{c}" }.join(',')
       
       drop_trigger("maintain_#{current_table}_trigger") 
+
+      # As internal_id is unique, we delete first the NEW.internal_id 
+      # which comes from the historic table from the current table.
+      # It shouldn't happen normally as all the rows in the current 
+      # table come from the historic table.
       after_trigger(
         %Q{
         BEGIN
         DELETE FROM #{current_table} WHERE uuid = NEW.uuid;
+        DELETE FROM #{current_table} WHERE internal_id = NEW.internal_id;
         INSERT INTO #{current_table}(#{columns.join(',')}) VALUES(#{new_values});
         END
         },

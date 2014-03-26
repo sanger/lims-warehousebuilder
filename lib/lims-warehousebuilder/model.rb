@@ -15,7 +15,7 @@ module Lims::WarehouseBuilder
     # @param [String] name
     # @return [Class]
     def self.model_for(name)
-      lower_name = name.downcase
+      lower_name = name.downcase.to_s
       alphanum_name = lower_name.gsub(/_/, "")
       return NameToSequel[alphanum_name] if NameToSequel[alphanum_name]
 
@@ -65,10 +65,13 @@ module Lims::WarehouseBuilder
 
     private
 
+    # @param [String] name
+    # @return [Sequel::Model]
+    # Generate a default model class for model contained in DB. 
     def self.generate_model(name)
-      class_name = name.capitalize.gsub(/_[^_]*/) { |b| b[1..b.size].capitalize }
+      class_name = class_name(name)
       Model.class_eval %Q{
-          class #{class_name} < Sequel::Model(:historic_#{name}s)
+          class #{class_name} < Sequel::Model(DB[:historic_#{name}s])
             include ResourceTools::Mapping
             include Common
 
@@ -78,6 +81,13 @@ module Lims::WarehouseBuilder
           end
       }
       Model.const_get(class_name)
+    end
+
+    # @param [String] name
+    # @return [String]
+    # @example: classname("aaa_bbb_ccc") => AaaBbbCcc
+    def self.class_name(name)
+      name.capitalize.gsub(/_[^_]*/) { |b| b[1..b.size].capitalize }
     end
 
     NameToSequel = {}.tap do |h|
