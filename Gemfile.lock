@@ -14,10 +14,10 @@ GIT
 
 GIT
   remote: https://github.com/sanger/lims-busclient.git
-  revision: ddba1b2a3b34b9d1f01c55f555a621d73803b300
-  branch: development
+  revision: 09730aba1fe7ff4d6fa36a9940c3fc8e04ae1bd1
+  branch: uat
   specs:
-    lims-busclient (0.4.0)
+    lims-busclient (0.4.1.rc1)
       aequitas
       amqp
       facets
@@ -47,7 +47,6 @@ GEM
       amq-client (~> 1.0.2)
       amq-protocol (>= 1.3.0)
       eventmachine
-    backports (3.3.5)
     bond (0.4.3)
     columnize (0.3.6)
     debugger (1.6.1)
@@ -59,7 +58,6 @@ GEM
       debugger (~> 1.1)
     debugger-linecache (1.2.0)
     debugger-ruby_core_source (1.2.3)
-    descendants_tracker (0.0.3)
     diff-lcs (1.1.3)
     eventmachine (1.0.3)
     facets (2.9.3)
@@ -75,9 +73,6 @@ GEM
     rspec-expectations (2.8.0)
       diff-lcs (~> 1.1.2)
     rspec-mocks (2.8.0)
-    virtus (0.5.5)
-      backports (~> 3.3)
-      descendants_tracker (~> 0.0.1)
     sequel (4.7.0)
     shotgun (0.9)
       rack (>= 1.0)
