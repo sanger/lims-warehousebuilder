@@ -32,7 +32,7 @@ module Lims::WarehouseBuilder
         }
       end
     end
-    let(:decoder) { described_class.new(model, payload) }
+    let(:decoder) { described_class.new(model, payload, payload) }
 
     it_behaves_like "a decoder"
 
