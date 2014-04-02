@@ -2,7 +2,7 @@ require 'digest'
 
 module Lims::WarehouseBuilder
   module Model
-    class SampleManagementActivity < Sequel::Model(:sample_management_activity)
+    class SampleManagementActivity < Sequel::Model(DB[:sample_management_activity])
 
       def before_save
         super

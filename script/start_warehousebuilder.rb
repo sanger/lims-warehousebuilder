@@ -8,9 +8,7 @@ module Lims
     env = ENV["LIMS_WAREHOUSEBUILDER_ENV"] or raise "LIMS_WAREHOUSEBUILDER_ENV is not set in the environment"
 
     amqp_settings = YAML.load_file(File.join('config','amqp.yml'))[env]
-    warehouse_settings = YAML.load_file(File.join('config','database.yml'))[env]
-
-    builder = Builder.new(amqp_settings, warehouse_settings)
+    builder = Builder.new(amqp_settings)
     builder.set_logger(Logging::LOGGER)
 
     notifier = Lims::ExceptionNotifierApp::ExceptionNotifier.new
@@ -24,6 +22,7 @@ module Lims
     rescue StandardError, LoadError, SyntaxError => e
       # log the caught exception
       notifier.send_notification_email(e)
+      raise e
     end
 
     Logging::LOGGER.info("Builder stopped")

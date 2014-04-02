@@ -21,7 +21,7 @@ module Lims::WarehouseBuilder
 
       module ClassMethods
         def current_table_name
-          self.table_name.to_s =~ /historic/ ? self.table_name.to_s.sub(/historic/, "current") : nil 
+          self.table_name.to_s =~ /historic/ ? self.table_name.to_s.sub(/historic/, "current") : default_table_name 
         end
 
         def default_table_name

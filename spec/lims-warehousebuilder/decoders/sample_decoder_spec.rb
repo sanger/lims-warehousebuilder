@@ -9,7 +9,7 @@ module Lims::WarehouseBuilder
     include_context "timecop"
 
     context "Sample payload from lims-management-app" do
-      let(:builder) { Builder.new({}, {}) }
+      let(:builder) { Builder.new({}) }
       let(:result) { builder.send(:decode_payload, payload, :action => action) }
 
       context "decode bulk create sample message" do
@@ -91,7 +91,7 @@ module Lims::WarehouseBuilder
           h["ancestor_type"] = ancestor_type
         end
       end
-      let(:decoder) { described_class.new(model, payload) }
+      let(:decoder) { described_class.new(model, payload, payload) }
       let(:result) { decoder.call }
 
       it_behaves_like "a decoder"

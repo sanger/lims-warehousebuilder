@@ -24,7 +24,7 @@ module Lims::WarehouseBuilder::Decoder
         }
       end
     end
-    let(:decoder) { described_class.new(model, payload) }
+    let(:decoder) { described_class.new(model, payload, payload) }
 
     before do
       Lims::WarehouseBuilder::Model::Barcode.new({

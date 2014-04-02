@@ -32,7 +32,7 @@ module Lims::WarehouseBuilder
           h["user"] = user
         end
       end
-      let(:decoder) { described_class.new(model, payload) }
+      let(:decoder) { described_class.new(model, payload, payload) }
       let(:result) { decoder.call({:action => "delete"}) }
 
       context "delete tube rack" do
