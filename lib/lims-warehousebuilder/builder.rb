@@ -53,6 +53,11 @@ module Lims
             # TODO: use the dead lettering queue
             metadata.reject
             log.error("Processing the message '#{metadata.routing_key}' failed with: #{ex.to_s}")
+          rescue StandardError => ste
+            log.error("Processing the message '#{metadata.routing_key}' failed with: #{ste.to_s}")
+            log.error("The failed payload of the message:")
+            log.error(payload)
+            raise ste
           end
         end
       end
