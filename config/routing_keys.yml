@@ -25,6 +25,7 @@ management_routing_keys: &MANAGEMENT
   - '*.*.bulkcreatesample.*'
   - '*.*.bulkupdatesample.*'
   - '*.*.bulkdeletesample.*'
+  - '*.*.bulkcopysample.*'
 
 support_routing_keys: &SUPPORT
   - '*.*.barcode.create'
