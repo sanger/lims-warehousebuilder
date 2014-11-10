@@ -8,6 +8,8 @@ laboratory_routing_keys: &LABORATORY
   - '*.*.plate.*'
   - '*.*.labellable.*'
   - '*.*.filterpaper.*'
+  - '*.*.fluidigm.*'
+  - '*.*.snpassay.*'
   # Bulk resource
   - '*.*.bulkcreatefilterpaper.*'
   - '*.*.bulkcreatetube.*'
@@ -18,6 +20,8 @@ laboratory_routing_keys: &LABORATORY
   - '*.*.swapsamples.*'
   - '*.*.transfermultiplefilterpaperstotubes.*'
   - '*.*.transfermultiplefilterpaperstowells.*'
+  - '*.*.transferplatestofluidigm.*'
+  - '*.*.movesnpassays.*'
 
 management_routing_keys: &MANAGEMENT
   - '*.*.sample.*'

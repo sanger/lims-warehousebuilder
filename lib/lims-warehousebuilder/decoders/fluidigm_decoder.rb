@@ -3,7 +3,7 @@ require 'lims-warehousebuilder/decoders/container_resource_shared'
 
 module Lims::WarehouseBuilder
   module Decoder
-    class PlateDecoder < JsonDecoder
+    class FluidigmDecoder < JsonDecoder
 
       include ContainerResourceShared
 
