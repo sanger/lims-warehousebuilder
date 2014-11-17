@@ -1,0 +1,12 @@
+not_supported_actions: &defaults
+  - 'printlabel'
+
+test:
+  not_supported_actions: *defaults
+
+development:
+  not_supported_actions: *defaults
+
+production:
+  not_supported_actions: *defaults
+

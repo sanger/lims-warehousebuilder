@@ -16,8 +16,9 @@ module Lims
       attribute :log, Object, :required => false, :writer => :private
       
       # @param [Hash] amqp_settings
-      def initialize(amqp_settings)
+      def initialize(amqp_settings, message_settings)
         @queue_name = amqp_settings.delete("queue_name")
+        @not_supported_actions = message_settings["not_supported_actions"] ? message_settings["not_supported_actions"] : {}
         consumer_setup(amqp_settings)
         set_queue
       end
@@ -41,11 +42,16 @@ module Lims
           log.debug("Processing message with routing key: '#{metadata.routing_key}' and payload: #{payload}")
           begin
             action = metadata.routing_key.match(/^[\w\.]*\.(\w*)$/)[1]
-            objects = decode_payload(payload, action)
-            maintain_warehouse(objects)
-            save_all(objects)
-            metadata.ack
-            log.info("Message processed and acknowledged")
+            unless (@not_supported_actions.include?(action))
+              objects = decode_payload(payload, action)
+              maintain_warehouse(objects)
+              save_all(objects)
+              metadata.ack
+              log.info("Message processed and acknowledged")
+            else
+              metadata.reject(:requeue => false)
+              log.info("The action '#{action}' that the message contained is unsupported. The message has been rejected.")
+            end
           rescue Sequel::Rollback, MessageToBeRequeued => e
             metadata.reject(:requeue => true)
             log.info("Message requeued: #{e}")

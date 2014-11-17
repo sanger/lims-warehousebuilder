@@ -14,10 +14,10 @@ GIT
 
 GIT
   remote: https://github.com/sanger/lims-busclient.git
-  revision: 09730aba1fe7ff4d6fa36a9940c3fc8e04ae1bd1
-  branch: uat
+  revision: 0da129dbd07a064e62e44c7d8a8fdc98131b92ce
+  branch: master
   specs:
-    lims-busclient (0.4.1.rc1)
+    lims-busclient (0.4.1)
       aequitas
       amqp
       facets
@@ -26,7 +26,7 @@ GIT
 PATH
   remote: .
   specs:
-    lims-warehousebuilder (1.7.4.pre)
+    lims-warehousebuilder (1.8.0.rc1)
       aequitas
       amqp
       facets
@@ -84,7 +84,7 @@ PLATFORMS
 DEPENDENCIES
   debugger
   debugger-completion
-  lims-busclient (~> 0.4.1.rc1)!
+  lims-busclient (~> 0.4.1)!
   lims-exception-notifier-app (~> 0.1)!
   lims-warehousebuilder!
   psd_logger!
